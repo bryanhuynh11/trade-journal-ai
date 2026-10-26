@@ -8,9 +8,10 @@
   <span><span class="who you">YOU</span>typed by me</span>
   <span><span class="who model">MODEL</span>Claude's label, checked by the validator</span>
 </div>
-<div class="grid g3" style="margin-bottom:24px">
+<div class="grid g2" style="margin-bottom:24px">
+  <a class="panel" href="{{ url_for('history_page') }}"><h3>Timeline &amp; coach →</h3><p class="hint" style="margin:0">Two weeks of trades on one timeline with a running P&amp;L total, plus Claude's answers to "what could I do better?" (every figure checked against the stats).</p></a>
   <a class="panel" href="{{ url_for('how') }}"><h3>1 · How it works →</h3><p class="hint" style="margin:0">The six-step pipeline and what the model is and isn't allowed to decide.</p></a>
-  <a class="panel" href="{{ url_for('day', stem=days[0].stem) }}"><h3>2 · Notes →</h3><p class="hint" style="margin:0">A sample day of 7 MNQ trades as imported from a TradeSea export, with my notes.</p></a>
+  <a class="panel" href="{{ url_for('day', stem=days[0].stem) }}"><h3>2 · Notes →</h3><p class="hint" style="margin:0">One sample day of 7 MNQ trades as imported from a TradeSea export, with my notes.</p></a>
   <a class="panel" href="{{ url_for('day_report', stem=days[0].stem) }}"><h3>3 · Report →</h3><p class="hint" style="margin:0">Claude's labels, the stats, and the exact prompt and answer for every trade.</p></a>
 </div>
 <p class="hint">The sample trades are made up for the demo. They're not real account history.</p>
@@ -28,8 +29,9 @@
   </form>
   <form class="panel" action="{{ url_for('load_sample') }}" method="post">
     <h3>Just exploring?</h3>
-    <p class="hint" style="margin-top:0">Load a made-up MNQ day (7 trades, notes already written) so you can see the whole flow in one click.</p>
-    <button class="btn">Load sample day</button>
+    <p class="hint" style="margin-top:0">Load made-up MNQ data with notes already written: one day (7 trades), or two weeks (33 trades) for the timeline and coach.</p>
+    <div class="row"><button class="btn">Load sample day</button>
+    <button class="btn" formaction="{{ url_for('load_sample_history') }}">Load 2-week sample</button></div>
   </form>
 </div>
 

@@ -13,13 +13,14 @@ from pathlib import Path
 from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
 
-from tj import pipeline, report, schema
+from tj import coach, history, pipeline, report, schema
 from tj.tagger import build_prompt
 
 ROOT = pipeline.ROOT
 DATA_DIR = ROOT / "data"           # uploaded Tradovate CSVs (gitignored)
 SAMPLE_CSV = ROOT / "sample" / "tradesea_2026-10-23.csv"
 SAMPLE_NOTES = ROOT / "sample" / "2026-10-23.notes.csv"
+SAMPLE_HISTORY = ROOT / "sample" / "history"
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
@@ -115,6 +116,53 @@ def load_sample():
     filled = {int(r["id"]): r for r in pipeline.read_notes(SAMPLE_NOTES)}
     pipeline.save_notes(out, filled)
     return redirect(url_for("day", stem=stem))
+
+
+@app.post("/sample-history")
+def load_sample_history():
+    """Two made-up weeks (sample/history) + the sample day, so the timeline and coach have data."""
+    DATA_DIR.mkdir(exist_ok=True)
+    load_sample()
+    for src in sorted(SAMPLE_HISTORY.glob("tradesea_*.csv")):
+        day_ = src.stem.removeprefix("tradesea_")
+        stem = f"sample-{day_}"
+        csv_copy = DATA_DIR / f"{stem}.csv"
+        shutil.copy(src, csv_copy)
+        out, _ = pipeline.make_template(csv_copy, force=True)
+        filled = {int(r["id"]): r for r in pipeline.read_notes(SAMPLE_HISTORY / f"{day_}.notes.csv")}
+        pipeline.save_notes(out, filled)
+    return redirect(url_for("history_page"))
+
+
+@app.get("/history")
+def history_page():
+    rows = history.load_all()
+    if app.config["DEMO"]:
+        rows = [r for r in rows if r["day"].startswith("sample-")]
+    s = history.summary(rows)
+    for r in rows:
+        r["issues"] = report.all_issues(r)
+    untagged = sorted({r["day"] for r in rows if not r["tagged"] and r["note"].strip()})
+    points = [{"t": r["entry_time"], "pnl": r["pnl"], "qty": r["qty"], "setup": r["setup"], "day": r["day"],
+               "id": r["id"], "side": r["side"], "kz": r["killzone"], "issues": report.all_issues(r)} for r in rows]
+    return render_template("history.html", rows=rows, s=s, points=points, untagged=untagged,
+                           context=history.coach_context(rows, s) if rows else "",
+                           canned=(app.config["DEMO"] or {}).get("coach", []))
+
+
+@app.post("/api/coach")
+def api_coach():
+    data = request.get_json(force=True) or {}
+    rows = history.load_all()
+    if not rows:
+        return jsonify(ok=False, error="No trades yet. Import a day first."), 400
+    ctx = history.coach_context(rows, history.summary(rows))
+    try:
+        backend = coach.make_backend(mock=bool(data.get("mock")))
+        out = coach.ask(str(data.get("question", "")), ctx, data.get("history") or [], backend)
+    except Exception as e:
+        return jsonify(ok=False, error=f"{type(e).__name__}: {e}"), 500
+    return jsonify(ok=True, **out)
 
 
 @app.get("/day/<stem>")

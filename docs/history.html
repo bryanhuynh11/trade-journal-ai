@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Timeline &amp; coach</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <header class="top"><div class="inner">
+    <a class="brand" href="index.html">Trade Journal <span>AI</span></a>
+    <nav>
+      <a href="index.html" class="">Overview</a>
+      <a href="history.html" class="on">Timeline &amp; coach</a>
+      <a href="how.html" class="">How it works</a>
+    </nav>
+  </div></header>
+  <main>
+    
+    <div class="demo-banner">
+      <b>Read-only snapshot</b> of a real run on Oct 25, 2026: every label on these pages came from <code>claude -p</code> and passed the validator.
+      The live app runs locally (it uses my Claude Code login, so it can't be public).
+      <a href="https://github.com/bryanhuynh11/trade-journal-ai">Source code &amp; build log →</a>
+    </div>
+    
+    
+<div class="row" style="margin-bottom:4px">
+  <h1>All trades</h1>
+  <span class="hint">2026-10-12 → 2026-10-23 · 10 days · 33 trades</span>
+</div>
+<p class="sub">Every trade from every day you've imported. The charts are all computed by Python. The coach on the right is Claude reading those same numbers plus your notes.</p>
+
+
+
+
+
+<div class="grid g5">
+  <div class="panel tile"><div class="k">Total P&amp;L <span class="who code">CODE</span></div><div class="v pos">$644.92</div></div>
+  <div class="panel tile"><div class="k">Win rate</div><div class="v">46%</div><div class="hint">avg win $131.76 · avg loss -$73.97</div></div>
+  <div class="panel tile"><div class="k">Profit factor</div><div class="v">1.48</div><div class="hint">expectancy $19.54/trade</div></div>
+  <div class="panel tile"><div class="k">Max drawdown</div><div class="v neg">-$412.36</div><div class="hint">peak-to-trough, closed trades</div></div>
+  <div class="panel tile"><div class="k">Green days</div><div class="v">6/10</div><div class="hint">best $212.94 · worst -$176.44</div></div>
+</div>
+
+<div class="hist-layout">
+  <div class="hist-main">
+    <div class="panel" style="margin-top:14px">
+      <div class="row"><h3 style="margin:0">Timeline: every trade + running total <span class="who code">CODE</span></h3><div class="spacer"></div>
+        <span class="hint">Bars = each trade · line = cumulative P&amp;L · click a bar to open that day</span></div>
+      <div style="height:300px"><canvas id="timeline"></canvas></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel"><h3>P&amp;L by day</h3><canvas id="daily"></canvas></div>
+      <div class="panel"><h3>P&amp;L by entry hour (NY)</h3><canvas id="hours"></canvas></div>
+      <div class="panel"><h3>P&amp;L by setup <span class="who model">MODEL</span> label</h3><div><canvas id="setups"></canvas></div></div>
+      <div class="panel"><h3>P&amp;L by issue <span class="who code">CODE</span> + <span class="who model">MODEL</span></h3><div><canvas id="issues"></canvas></div></div>
+    </div>
+    
+    <div class="panel" style="margin-top:14px">
+      <h3>Tilt check <span class="who code">CODE</span></h3>
+      The trade right after a loss (same day): <b>13</b> trades, net
+      <b class="pos">$555.96</b>,
+      win rate <b>54%</b>
+      vs <b>46%</b> overall.
+    </div>
+    
+
+    <h2>Trade log</h2>
+    <div class="panel tradelog">
+      <table>
+        <tr><th>When (NY)</th><th>Trade</th><th class="num">P&amp;L</th><th class="num">Running</th><th>Killzone</th><th>Setup</th><th>Issues</th></tr>
+        
+        <tr>
+          <td class="mono"><a href="report.html">10-23 15:10</a></td>
+          <td>short 1 MNQ</td>
+          <td class="num mono pos">$8.76</td>
+          <td class="num mono">$644.92</td>
+          <td><span class="chip">ny_pm</span></td>
+          <td><span class="setup">no_note</span></td>
+          <td><span class="chip rule">rule:over_max_trades</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono"><a href="report.html">10-23 13:44</a></td>
+          <td>long 2 MNQ</td>
+          <td class="num mono pos">$30.52</td>
+          <td class="num mono">$636.16</td>
+          <td><span class="chip">ny_pm</span></td>
+          <td><span class="setup">order_block</span></td>
+          <td><span class="chip rule">rule:over_max_trades</span><span class="chip note">note:early_exit</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono"><a href="report.html">10-23 11:21</a></td>
+          <td>short 2 MNQ</td>
+          <td class="num mono neg">-$27.48</td>
+          <td class="num mono">$605.64</td>
+          <td><span class="chip">none</span></td>
+          <td><span class="setup">other</span></td>
+          <td><span class="chip rule">rule:outside_killzone</span><span class="chip rule">rule:over_max_trades</span><span class="chip note">note:no_plan</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono"><a href="report.html">10-23 10:04</a></td>
+          <td>long 3 MNQ</td>
+          <td class="num mono pos">$276.78</td>
+          <td class="num mono">$633.12</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">silver_bullet</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono"><a href="report.html">10-23 08:55</a></td>
+          <td>long 6 MNQ</td>
+          <td class="num mono neg">-$118.44</td>
+          <td class="num mono">$356.34</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">other</span></td>
+          <td><span class="chip rule">rule:oversized</span><span class="chip note">note:revenge_trade</span><span class="chip note">note:no_plan</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono"><a href="report.html">10-23 08:47</a></td>
+          <td>long 3 MNQ</td>
+          <td class="num mono neg">-$78.72</td>
+          <td class="num mono">$474.78</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">unclear</span></td>
+          <td><span class="chip note">note:early_entry</span><span class="chip note">note:fomo_entry</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono"><a href="report.html">10-23 03:12</a></td>
+          <td>short 2 MNQ</td>
+          <td class="num mono pos">$121.52</td>
+          <td class="num mono">$553.50</td>
+          <td><span class="chip">london</span></td>
+          <td><span class="setup">liquidity_sweep_reversal</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-22 14:20</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono neg">-$61.48</td>
+          <td class="num mono">$431.98</td>
+          <td><span class="chip">ny_pm</span></td>
+          <td><span class="setup">other</span></td>
+          <td><span class="chip note">note:no_plan</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-22 13:45</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono pos">$41.52</td>
+          <td class="num mono">$493.46</td>
+          <td><span class="chip">ny_pm</span></td>
+          <td><span class="setup">order_block</span></td>
+          <td><span class="chip note">note:early_exit</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-22 10:13</td>
+          <td>short 3 MNQ</td>
+          <td class="num mono neg">-$92.22</td>
+          <td class="num mono">$451.94</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">silver_bullet</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-22 03:20</td>
+          <td>short 2 MNQ</td>
+          <td class="num mono pos">$67.52</td>
+          <td class="num mono">$544.16</td>
+          <td><span class="chip">london</span></td>
+          <td><span class="setup">liquidity_sweep_reversal</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-21 12:38</td>
+          <td>short 2 MNQ</td>
+          <td class="num mono neg">-$61.48</td>
+          <td class="num mono">$476.64</td>
+          <td><span class="chip">ny_lunch</span></td>
+          <td><span class="setup">other</span></td>
+          <td><span class="chip note">note:no_plan</span><span class="chip note">note:fomo_entry</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-21 10:20</td>
+          <td>long 3 MNQ</td>
+          <td class="num mono pos">$263.28</td>
+          <td class="num mono">$538.12</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">silver_bullet</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-20 10:43</td>
+          <td>long 6 MNQ</td>
+          <td class="num mono pos">$115.56</td>
+          <td class="num mono">$274.84</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">other</span></td>
+          <td><span class="chip rule">rule:oversized</span><span class="chip note">note:revenge_trade</span><span class="chip note">note:no_plan</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-20 09:59</td>
+          <td>short 3 MNQ</td>
+          <td class="num mono neg">-$92.22</td>
+          <td class="num mono">$159.28</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">breakout_chase</span></td>
+          <td><span class="chip note">note:fomo_entry</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-20 09:42</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono pos">$139.52</td>
+          <td class="num mono">$251.50</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">fvg_entry</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-19 10:42</td>
+          <td>short 3 MNQ</td>
+          <td class="num mono pos">$278.28</td>
+          <td class="num mono">$111.98</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">silver_bullet</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-19 09:54</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono neg">-$49.48</td>
+          <td class="num mono">-$166.30</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">fvg_entry</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-19 03:38</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono neg">-$49.48</td>
+          <td class="num mono">-$116.82</td>
+          <td><span class="chip">london</span></td>
+          <td><span class="setup">liquidity_sweep_reversal</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-16 14:17</td>
+          <td>short 2 MNQ</td>
+          <td class="num mono neg">-$49.48</td>
+          <td class="num mono">-$67.34</td>
+          <td><span class="chip">ny_pm</span></td>
+          <td><span class="setup">order_block</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-16 12:16</td>
+          <td>short 2 MNQ</td>
+          <td class="num mono pos">$56.52</td>
+          <td class="num mono">-$17.86</td>
+          <td><span class="chip">ny_lunch</span></td>
+          <td><span class="setup">order_block</span></td>
+          <td><span class="chip note">note:no_plan</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-16 09:30</td>
+          <td>short 6 MNQ</td>
+          <td class="num mono pos">$193.56</td>
+          <td class="num mono">-$74.38</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">other</span></td>
+          <td><span class="chip rule">rule:oversized</span><span class="chip note">note:revenge_trade</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-16 09:01</td>
+          <td>short 3 MNQ</td>
+          <td class="num mono neg">-$62.22</td>
+          <td class="num mono">-$267.94</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">breakout_chase</span></td>
+          <td><span class="chip note">note:early_entry</span><span class="chip note">note:fomo_entry</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-15 14:19</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono pos">$18.52</td>
+          <td class="num mono">-$205.72</td>
+          <td><span class="chip">ny_pm</span></td>
+          <td><span class="setup">order_block</span></td>
+          <td><span class="chip note">note:early_exit</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-15 10:20</td>
+          <td>long 3 MNQ</td>
+          <td class="num mono pos">$185.28</td>
+          <td class="num mono">-$224.24</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">silver_bullet</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-14 14:56</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono neg">-$41.48</td>
+          <td class="num mono">-$409.52</td>
+          <td><span class="chip">ny_pm</span></td>
+          <td><span class="setup">order_block</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-14 11:30</td>
+          <td>long 2 MNQ</td>
+          <td class="num mono neg">-$73.48</td>
+          <td class="num mono">-$368.04</td>
+          <td><span class="chip">none</span></td>
+          <td><span class="setup">unclear</span></td>
+          <td><span class="chip rule">rule:outside_killzone</span><span class="chip note">note:no_plan</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-14 09:42</td>
+          <td>short 2 MNQ</td>
+          <td class="num mono neg">-$61.48</td>
+          <td class="num mono">-$294.56</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">fvg_entry</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-13 10:49</td>
+          <td>short 3 MNQ</td>
+          <td class="num mono pos">$179.28</td>
+          <td class="num mono">-$233.08</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">silver_bullet</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-13 09:06</td>
+          <td>short 6 MNQ</td>
+          <td class="num mono neg">-$184.44</td>
+          <td class="num mono">-$412.36</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">other</span></td>
+          <td><span class="chip rule">rule:oversized</span><span class="chip note">note:revenge_trade</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-13 08:48</td>
+          <td>long 3 MNQ</td>
+          <td class="num mono neg">-$62.22</td>
+          <td class="num mono">-$227.92</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">unclear</span></td>
+          <td><span class="chip note">note:early_entry</span><span class="chip note">note:fomo_entry</span></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-12 10:16</td>
+          <td>short 3 MNQ</td>
+          <td class="num mono neg">-$92.22</td>
+          <td class="num mono">-$165.70</td>
+          <td><span class="chip">ny_am</span></td>
+          <td><span class="setup">silver_bullet</span></td>
+          <td></td>
+        </tr>
+        
+        <tr>
+          <td class="mono">10-12 04:18</td>
+          <td>short 2 MNQ</td>
+          <td class="num mono neg">-$73.48</td>
+          <td class="num mono">-$73.48</td>
+          <td><span class="chip">london</span></td>
+          <td><span class="setup">liquidity_sweep_reversal</span></td>
+          <td></td>
+        </tr>
+        
+      </table>
+    </div>
+  </div>
+
+  <aside class="hist-chat">
+    <div class="panel chat">
+      <div class="row" style="margin-bottom:8px"><h3 style="margin:0">Ask Claude: what could I do better? <span class="who model">MODEL</span></h3></div>
+      <div id="msgs" class="msgs">
+        
+          
+          <div class="msg user">What&#39;s my biggest leak right now?</div>
+          <div class="msg bot">Your biggest leak is emotional, impulsive entries: FOMO, revenge, and no-plan trades taken outside your setups.
+
+- note:fomo_entry: 5 trades, net -$356.86, 0% win rate. This is the single costliest tag.
+- note:no_plan: 7 trades, net -$170.28, 29% win rate.
+- note:early_entry: 3 trades, net -$203.16, 0% win rate.
+- Frustrated trades: 5 trades, net -$263.76. Bored trades: 5 trades, net -$167.40.
+
+Your last two sessions show the pattern. On 2026-10-23 you chased the 8:30 news candle at 08:47, then doubled size at 08:55 to &#34;make it back&#34; (-$78.72, then -$118.44). On 2026-10-20 you chased a news candle (-$92.22), then took a revenge trade at size.
+
+The revenge trades netted $6.24, so a win there doesn&#39;t mean the process worked. The 08:00 NY hour is 3 trades, net -$259.38, 0% win rate.
+
+Compare that with your clean trades: 16 trades, net $1002.14, 50% win rate. The 10:00 NY hour is 8 trades, net $1114.02, and silver_bullet is 7 trades, net $998.46.
+
+You don&#39;t need a new strategy. You need a rule that stops you after the first loss when the next entry has no written plan. Try a hard pause after any news-candle stop-out. Don&#39;t re-enter until you can name the sweep, the FVG and the target.
+
+The data on &#34;after a loss&#34; trades overall is mixed: 13 trades, net $555.96. So the problem isn&#39;t losing itself. It&#39;s the unplanned trade that follows.
+            <div class="check ok">✓ 19 figures checked against your stats · 9.9s</div>
+          </div>
+          
+          <div class="msg user">Give me 3 concrete rules for next week based on this.</div>
+          <div class="msg bot">Three rules for next week, each tied to your numbers:
+
+1. Two-strikes-then-stop on impulse tags. After one stop-out, the next entry needs a written plan: the sweep, the FVG and the target. If you can&#39;t write it, you don&#39;t trade. Your next trade after a loss is 13 trades, net $555.96, so you can trade after a loss. The leak is trading without a plan: note:no_plan is 7 trades, net -$170.28, and note:fomo_entry is 5 trades, net -$356.86.
+
+2. No size increase after a loss, and a hard cap on size. Oversized trades were 4 trades, net $6.24, avg R -0.39. Revenge trades were also 4 trades, net $6.24. Those wins were luck, not process, and on 2026-10-23 the doubled size at 08:55 lost -$118.44. Use your standard size until you&#39;ve had a clean trade.
+
+3. Trade only inside your killzones and stop at your max trades. The two rule:outside_killzone trades were net -$100.96 with a 0% win rate. rule:over_max_trades was 3 trades. Your 10:00 NY hour is 8 trades, net $1114.02, and silver_bullet is 7 trades, net $998.46. On 2026-10-23 you took the 11:21 and 15:10 trades after your plan trades were done. Once you hit your max trades, close the platform.
+
+One caution: early_exit trades were 3 trades, net $90.56, so they aren&#39;t costing you much in P&amp;L. Your notes say you exited from nervousness, though, so track those separately. The sample is only 3 trades, which is too thin to judge.
+            <div class="check ok">✓ 11 figures checked against your stats · 10.1s</div>
+          </div>
+          
+        
+      </div>
+      
+      <p class="hint" style="margin:10px 0 0">These answers came from a real <code>claude -p</code> run when this snapshot was built. In the live app you type your own questions here.</p>
+      
+      <details style="margin-top:10px">
+        <summary>What Claude sees (the only data it gets)</summary>
+        <pre>PERIOD: 2026-10-12 to 2026-10-23, 10 trading days, 33 trades (33 with Claude labels).
+TOTAL: net $644.92, win rate 46%, avg win $131.76, avg loss -$73.97, profit factor 1.48, expectancy $19.54/trade, avg R 0.33, max drawdown -$412.36.
+DAYS: 6 green of 10; best 2026-10-23 $212.94; worst 2026-10-14 -$176.44.
+NEXT TRADE AFTER A LOSS (same day): 13 trades, net $555.96, win rate 54%.
+BY SETUP: group | trades | net $ | win rate | expectancy $ | avg R
+  silver_bullet | 7 | 998.46 | 71% | 142.64 | 2.61
+  other | 7 | -144.20 | 29% | -20.60 | -0.71
+  order_block | 6 | 56.12 | 67% | 9.35 | 0.17
+  liquidity_sweep_reversal | 4 | 66.08 | 50% | 16.52 | 0.67
+  unclear | 3 | -214.42 | 0% | -71.47 | -1.42
+  fvg_entry | 3 | 28.56 | 33% | 9.52 | -0.04
+  breakout_chase | 2 | -154.44 | 0% | -77.22 | -1.03
+  no_note | 1 | 8.76 | 100% | 8.76 | -
+BY ISSUE (rule: = code-proven, note: = from my notes): group | trades | net $ | win rate | expectancy $ | avg R
+  clean | 16 | 1002.14 | 50% | 62.63 | 1.17
+  note:no_plan | 7 | -170.28 | 29% | -24.33 | -0.72
+  note:fomo_entry | 5 | -356.86 | 0% | -71.37 | -1.26
+  rule:oversized | 4 | 6.24 | 50% | 1.56 | -0.39
+  note:revenge_trade | 4 | 6.24 | 50% | 1.56 | -0.39
+  note:early_entry | 3 | -203.16 | 0% | -67.72 | -1.42
+  note:early_exit | 3 | 90.56 | 100% | 30.19 | 0.77
+  rule:over_max_trades | 3 | 11.80 | 67% | 3.93 | -0.05
+  rule:outside_killzone | 2 | -100.96 | 0% | -50.48 | -1.2
+BY KILLZONE: group | trades | net $ | win rate | expectancy $ | avg R
+  ny_am | 18 | 737.88 | 44% | 40.99 | 0.63
+  ny_pm | 7 | -53.12 | 57% | -7.59 | -0.13
+  london | 4 | 66.08 | 50% | 16.52 | 0.67
+  none | 2 | -100.96 | 0% | -50.48 | -1.2
+  ny_lunch | 2 | -4.96 | 50% | -2.48 | -0.11
+BY HOUR (entry): group | trades | net $ | win rate | expectancy $ | avg R
+  03:00 NY | 3 | 139.56 | 67% | 46.52 | 1.23
+  04:00 NY | 1 | -73.48 | 0% | -73.48 | -1.02
+  08:00 NY | 3 | -259.38 | 0% | -86.46 | -1.73
+  09:00 NY | 7 | -116.76 | 29% | -16.68 | -0.33
+  10:00 NY | 8 | 1114.02 | 75% | 139.25 | 2.35
+  11:00 NY | 2 | -100.96 | 0% | -50.48 | -1.2
+  12:00 NY | 2 | -4.96 | 50% | -2.48 | -0.11
+  13:00 NY | 2 | 72.04 | 100% | 36.02 | 0.93
+  14:00 NY | 4 | -133.92 | 25% | -33.48 | -0.66
+  15:00 NY | 1 | 8.76 | 100% | 8.76 | -
+BY EMOTION: group | trades | net $ | win rate | expectancy $ | avg R
+  calm | 11 | 139.00 | 36% | 12.64 | 0.24
+  anxious | 5 | -50.38 | 60% | -10.08 | -0.18
+  frustrated | 5 | -263.76 | 20% | -52.75 | -0.83
+  bored | 5 | -167.40 | 20% | -33.48 | -0.73
+  confident | 4 | 904.62 | 100% | 226.15 | 4.31
+  unclear | 2 | -32.72 | 50% | -16.36 | -1.04
+  greedy | 1 | 115.56 | 100% | 115.56 | 0.54
+BY SIDE: group | trades | net $ | win rate | expectancy $ | avg R
+  short | 17 | 108.72 | 41% | 6.40 | 0.12
+  long | 16 | 536.20 | 50% | 33.51 | 0.54
+MY 15 MOST RECENT TRADES (newest last):
+  2026-10-20 09:59 short 3 MNQ -$92.22 [ny_am] setup=breakout_chase issues=note:fomo_entry note=&#34;Saw the news candle ripping and chased it. Stopped, classic chase. Annoyed.&#34;
+  2026-10-20 10:43 long 6 MNQ $115.56 [ny_am] setup=other issues=rule:oversized,note:revenge_trade,note:no_plan note=&#34;Wanted the loss back immediately, no setup, went size. Won but it was gambling.&#34;
+  2026-10-21 10:20 long 3 MNQ $263.28 [ny_am] setup=silver_bullet issues=clean note=&#34;Silver bullet. SSL swept at 21401, entered the 1m FVG, target 21463 BSL. Paid to 21463. Confident, did what I planned.&#34;
+  2026-10-21 12:38 short 2 MNQ -$61.48 [ny_lunch] setup=other issues=note:no_plan,note:fomo_entry note=&#34;Nothing going on, forced a trade at lunch. Small loss, shouldn&#39;t have been in.&#34;
+  2026-10-22 03:20 short 2 MNQ $67.52 [london] setup=liquidity_sweep_reversal issues=clean note=&#34;London: Asia high raided, shift on the 5m, entered on the retrace. Worked, took it to the London target. Calm.&#34;
+  2026-10-22 10:13 short 3 MNQ -$92.22 [ny_am] setup=silver_bullet issues=clean note=&#34;10am silver bullet: sweep of the 9:50 low, displacement up, filled in the FVG. Took the stop, setup was valid. Fine.&#34;
+  2026-10-22 13:45 long 2 MNQ $41.52 [ny_pm] setup=order_block issues=note:early_exit note=&#34;Afternoon continuation, entered the bullish OB retest. Cut it early at +10 because I was nervous, it ran more after.&#34;
+  2026-10-22 14:20 long 2 MNQ -$61.48 [ny_pm] setup=other issues=note:no_plan note=&#34;Bored at lunch, shorted what looked like a top. Small loss, shouldn&#39;t have been in.&#34;
+  2026-10-23 03:12 short 2 MNQ $121.52 [london] setup=liquidity_sweep_reversal issues=clean note=&#34;London sweep of Asia high at 21490, waited for displacement down and shorted the FVG retest. Plan trade, stop above the high. Felt calm.&#34;
+  2026-10-23 08:47 long 3 MNQ -$78.72 [ny_am] setup=unclear issues=note:early_entry,note:fomo_entry note=&#34;Got in too early before the 8:30 news range low was even taken. Saw the candle ripping and FOMO&#39;d. Stopped out.&#34;
+  2026-10-23 08:55 long 6 MNQ -$118.44 [ny_am] setup=other issues=rule:oversized,note:revenge_trade,note:no_plan note=&#34;Revenge trade after #2, doubled size to make it back. No real setup, just wanted green. Frustrated.&#34;
+  2026-10-23 10:04 long 3 MNQ $276.78 [ny_am] setup=silver_bullet issues=clean note=&#34;Silver bullet window, FVG on the 1m after SSL sweep at 21365. Entered at the gap, target the 21420 BSL. Took it to target. Confident.&#34;
+  2026-10-23 11:21 short 2 MNQ -$27.48 [none] setup=other issues=rule:outside_killzone,rule:over_max_trades,note:no_plan note=&#34;Bored at lunch, shorted a &#39;top&#39; with no setup.&#34;
+  2026-10-23 13:44 long 2 MNQ $30.52 [ny_pm] setup=order_block issues=rule:over_max_trades,note:early_exit note=&#34;PM session bullish OB retest at 21415. Cut it early at +4 because I was nervous after the morning, it ran another 30 pts after.&#34;
+  2026-10-23 15:10 short 1 MNQ $8.76 [ny_pm] setup=no_note issues=rule:over_max_trades note=&#34;-&#34;</pre>
+      </details>
+      <p class="hint" style="margin:8px 0 0">Every $ and % in an answer is checked against these stats by code. A figure that isn't there gets flagged ⚠. It's process coaching, not financial advice.</p>
+    </div>
+  </aside>
+</div>
+
+
+  </main>
+  
+
+<script src="static/vendor/chart.umd.min.js"></script>
+<script>
+const css = getComputedStyle(document.documentElement);
+const C = (v) => css.getPropertyValue(v).trim();
+Chart.defaults.color = C("--muted"); Chart.defaults.borderColor = C("--line"); Chart.defaults.font.family = css.fontFamily;
+const money = (v) => (v < 0 ? "-$" : "$") + Math.abs(v).toFixed(2);
+
+const pts = [{"day": "sample-2026-10-12", "id": 1, "issues": ["clean"], "kz": "london", "pnl": -73.48, "qty": 2, "setup": "liquidity_sweep_reversal", "side": "short", "t": "2026-10-12 04:18:03"}, {"day": "sample-2026-10-12", "id": 2, "issues": ["clean"], "kz": "ny_am", "pnl": -92.22, "qty": 3, "setup": "silver_bullet", "side": "short", "t": "2026-10-12 10:16:50"}, {"day": "sample-2026-10-13", "id": 1, "issues": ["note:early_entry", "note:fomo_entry"], "kz": "ny_am", "pnl": -62.22, "qty": 3, "setup": "unclear", "side": "long", "t": "2026-10-13 08:48:06"}, {"day": "sample-2026-10-13", "id": 2, "issues": ["rule:oversized", "note:revenge_trade"], "kz": "ny_am", "pnl": -184.44, "qty": 6, "setup": "other", "side": "short", "t": "2026-10-13 09:06:06"}, {"day": "sample-2026-10-13", "id": 3, "issues": ["clean"], "kz": "ny_am", "pnl": 179.28, "qty": 3, "setup": "silver_bullet", "side": "short", "t": "2026-10-13 10:49:47"}, {"day": "sample-2026-10-14", "id": 1, "issues": ["clean"], "kz": "ny_am", "pnl": -61.48, "qty": 2, "setup": "fvg_entry", "side": "short", "t": "2026-10-14 09:42:11"}, {"day": "sample-2026-10-14", "id": 2, "issues": ["rule:outside_killzone", "note:no_plan"], "kz": "none", "pnl": -73.48, "qty": 2, "setup": "unclear", "side": "long", "t": "2026-10-14 11:30:04"}, {"day": "sample-2026-10-14", "id": 3, "issues": ["clean"], "kz": "ny_pm", "pnl": -41.48, "qty": 2, "setup": "order_block", "side": "long", "t": "2026-10-14 14:56:13"}, {"day": "sample-2026-10-15", "id": 1, "issues": ["clean"], "kz": "ny_am", "pnl": 185.28, "qty": 3, "setup": "silver_bullet", "side": "long", "t": "2026-10-15 10:20:18"}, {"day": "sample-2026-10-15", "id": 2, "issues": ["note:early_exit"], "kz": "ny_pm", "pnl": 18.52, "qty": 2, "setup": "order_block", "side": "long", "t": "2026-10-15 14:19:57"}, {"day": "sample-2026-10-16", "id": 1, "issues": ["note:early_entry", "note:fomo_entry"], "kz": "ny_am", "pnl": -62.22, "qty": 3, "setup": "breakout_chase", "side": "short", "t": "2026-10-16 09:01:56"}, {"day": "sample-2026-10-16", "id": 2, "issues": ["rule:oversized", "note:revenge_trade"], "kz": "ny_am", "pnl": 193.56, "qty": 6, "setup": "other", "side": "short", "t": "2026-10-16 09:30:56"}, {"day": "sample-2026-10-16", "id": 3, "issues": ["note:no_plan"], "kz": "ny_lunch", "pnl": 56.52, "qty": 2, "setup": "order_block", "side": "short", "t": "2026-10-16 12:16:17"}, {"day": "sample-2026-10-16", "id": 4, "issues": ["clean"], "kz": "ny_pm", "pnl": -49.48, "qty": 2, "setup": "order_block", "side": "short", "t": "2026-10-16 14:17:44"}, {"day": "sample-2026-10-19", "id": 1, "issues": ["clean"], "kz": "london", "pnl": -49.48, "qty": 2, "setup": "liquidity_sweep_reversal", "side": "long", "t": "2026-10-19 03:38:38"}, {"day": "sample-2026-10-19", "id": 2, "issues": ["clean"], "kz": "ny_am", "pnl": -49.48, "qty": 2, "setup": "fvg_entry", "side": "long", "t": "2026-10-19 09:54:46"}, {"day": "sample-2026-10-19", "id": 3, "issues": ["clean"], "kz": "ny_am", "pnl": 278.28, "qty": 3, "setup": "silver_bullet", "side": "short", "t": "2026-10-19 10:42:46"}, {"day": "sample-2026-10-20", "id": 1, "issues": ["clean"], "kz": "ny_am", "pnl": 139.52, "qty": 2, "setup": "fvg_entry", "side": "long", "t": "2026-10-20 09:42:39"}, {"day": "sample-2026-10-20", "id": 2, "issues": ["note:fomo_entry"], "kz": "ny_am", "pnl": -92.22, "qty": 3, "setup": "breakout_chase", "side": "short", "t": "2026-10-20 09:59:39"}, {"day": "sample-2026-10-20", "id": 3, "issues": ["rule:oversized", "note:revenge_trade", "note:no_plan"], "kz": "ny_am", "pnl": 115.56, "qty": 6, "setup": "other", "side": "long", "t": "2026-10-20 10:43:39"}, {"day": "sample-2026-10-21", "id": 1, "issues": ["clean"], "kz": "ny_am", "pnl": 263.28, "qty": 3, "setup": "silver_bullet", "side": "long", "t": "2026-10-21 10:20:14"}, {"day": "sample-2026-10-21", "id": 2, "issues": ["note:no_plan", "note:fomo_entry"], "kz": "ny_lunch", "pnl": -61.48, "qty": 2, "setup": "other", "side": "short", "t": "2026-10-21 12:38:25"}, {"day": "sample-2026-10-22", "id": 1, "issues": ["clean"], "kz": "london", "pnl": 67.52, "qty": 2, "setup": "liquidity_sweep_reversal", "side": "short", "t": "2026-10-22 03:20:22"}, {"day": "sample-2026-10-22", "id": 2, "issues": ["clean"], "kz": "ny_am", "pnl": -92.22, "qty": 3, "setup": "silver_bullet", "side": "short", "t": "2026-10-22 10:13:25"}, {"day": "sample-2026-10-22", "id": 3, "issues": ["note:early_exit"], "kz": "ny_pm", "pnl": 41.52, "qty": 2, "setup": "order_block", "side": "long", "t": "2026-10-22 13:45:19"}, {"day": "sample-2026-10-22", "id": 4, "issues": ["note:no_plan"], "kz": "ny_pm", "pnl": -61.48, "qty": 2, "setup": "other", "side": "long", "t": "2026-10-22 14:20:19"}, {"day": "sample-2026-10-23", "id": 1, "issues": ["clean"], "kz": "london", "pnl": 121.52, "qty": 2, "setup": "liquidity_sweep_reversal", "side": "short", "t": "2026-10-23 03:12:40"}, {"day": "sample-2026-10-23", "id": 2, "issues": ["note:early_entry", "note:fomo_entry"], "kz": "ny_am", "pnl": -78.72, "qty": 3, "setup": "unclear", "side": "long", "t": "2026-10-23 08:47:10"}, {"day": "sample-2026-10-23", "id": 3, "issues": ["rule:oversized", "note:revenge_trade", "note:no_plan"], "kz": "ny_am", "pnl": -118.44, "qty": 6, "setup": "other", "side": "long", "t": "2026-10-23 08:55:02"}, {"day": "sample-2026-10-23", "id": 4, "issues": ["clean"], "kz": "ny_am", "pnl": 276.78, "qty": 3, "setup": "silver_bullet", "side": "long", "t": "2026-10-23 10:04:15"}, {"day": "sample-2026-10-23", "id": 5, "issues": ["rule:outside_killzone", "rule:over_max_trades", "note:no_plan"], "kz": "none", "pnl": -27.48, "qty": 2, "setup": "other", "side": "short", "t": "2026-10-23 11:21:30"}, {"day": "sample-2026-10-23", "id": 6, "issues": ["rule:over_max_trades", "note:early_exit"], "kz": "ny_pm", "pnl": 30.52, "qty": 2, "setup": "order_block", "side": "long", "t": "2026-10-23 13:44:00"}, {"day": "sample-2026-10-23", "id": 7, "issues": ["rule:over_max_trades"], "kz": "ny_pm", "pnl": 8.76, "qty": 1, "setup": "no_note", "side": "short", "t": "2026-10-23 15:10:00"}];
+const equity = [-73.48, -165.7, -227.92, -412.36, -233.08, -294.56, -368.04, -409.52, -224.24, -205.72, -267.94, -74.38, -17.86, -67.34, -116.82, -166.3, 111.98, 251.5, 159.28, 274.84, 538.12, 476.64, 544.16, 451.94, 493.46, 431.98, 553.5, 474.78, 356.34, 633.12, 605.64, 636.16, 644.92];
+const DEMO = true;
+new Chart(document.getElementById("timeline"), {
+  data: {
+    labels: pts.map(p => p.t.slice(5, 16)),
+    datasets: [
+      { type: "line", label: "Running total", data: equity, borderColor: C("--code"), backgroundColor: "transparent",
+        pointRadius: 0, tension: .2, yAxisID: "y", order: 0 },
+      { type: "bar", label: "Trade P&L", data: pts.map(p => p.pnl), yAxisID: "y", order: 1,
+        backgroundColor: pts.map(p => p.pnl >= 0 ? C("--green") : C("--red")), borderRadius: 2 },
+    ]
+  },
+  options: {
+    maintainAspectRatio: false,
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false }, tooltip: { callbacks: {
+      title: (c) => { const p = pts[c[0].dataIndex]; return `${p.t.slice(0,16)} NY · ${p.side} ${p.qty} · ${p.kz}`; },
+      label: (c) => c.dataset.type === "bar" ? `Trade: ${money(c.raw)} · ${pts[c.dataIndex].setup}` : `Running: ${money(c.raw)}`,
+      afterBody: (c) => pts[c[0].dataIndex].issues.filter(i => i !== "clean").join(", ")
+    } } },
+    scales: { x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } }, y: { ticks: { callback: v => "$" + v } } },
+    onClick: (e, els) => {
+      if (!els.length) return;
+      const p = pts[els[0].index];
+      if (DEMO) { if (p.day === "sample-2026-10-23") location.href = "report.html"; return; }
+      location.href = `/day/${p.day}/report`;
+    }
+  }
+});
+
+function bars(id, rows, horizontal = true, sort = true) {
+  if (sort) rows = [...rows].sort((a, b) => a.net - b.net);
+  if (horizontal) document.getElementById(id).parentElement.style.height = (60 + rows.length * 26) + "px";
+  new Chart(document.getElementById(id), {
+    type: "bar",
+    data: { labels: rows.map(r => r.k), datasets: [{ data: rows.map(r => r.net),
+            backgroundColor: rows.map(r => r.net >= 0 ? C("--green") : C("--red")), borderRadius: 4 }] },
+    options: { indexAxis: horizontal ? "y" : "x", plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: (c) => { const r = rows[c.dataIndex];
+        return `${money(r.net)} · ${r.n} trade${r.n > 1 ? "s" : ""}` + (r.wr !== undefined ? ` · ${Math.round(r.wr * 100)}% win` : ""); } } } },
+      maintainAspectRatio: !horizontal,
+      scales: { [horizontal ? "x" : "y"]: { ticks: { callback: v => "$" + v } },
+                [horizontal ? "y" : "x"]: { ticks: { autoSkip: !horizontal } } } }
+  });
+}
+const grp = (g) => Object.entries(g).map(([k, v]) => ({ k, net: v.net_pnl, n: v.trades, wr: v.win_rate }));
+bars("daily", [{"date": "2026-10-12", "pnl": -165.7, "trades": 2}, {"date": "2026-10-13", "pnl": -67.38, "trades": 3}, {"date": "2026-10-14", "pnl": -176.44, "trades": 3}, {"date": "2026-10-15", "pnl": 203.8, "trades": 2}, {"date": "2026-10-16", "pnl": 138.38, "trades": 4}, {"date": "2026-10-19", "pnl": 179.32, "trades": 3}, {"date": "2026-10-20", "pnl": 162.86, "trades": 3}, {"date": "2026-10-21", "pnl": 201.8, "trades": 2}, {"date": "2026-10-22", "pnl": -44.66, "trades": 4}, {"date": "2026-10-23", "pnl": 212.94, "trades": 7}].map(d => ({ k: d.date.slice(5), net: d.pnl, n: d.trades })), false, false);
+bars("hours", grp({"03:00 NY": {"avg_loss": -49.48, "avg_r": 1.23, "avg_win": 94.52, "expectancy": 46.52, "net_pnl": 139.56, "profit_factor": 3.82, "trades": 3, "win_rate": 0.667}, "04:00 NY": {"avg_loss": -73.48, "avg_r": -1.02, "avg_win": 0.0, "expectancy": -73.48, "net_pnl": -73.48, "profit_factor": 0.0, "trades": 1, "win_rate": 0.0}, "08:00 NY": {"avg_loss": -86.46, "avg_r": -1.73, "avg_win": 0.0, "expectancy": -86.46, "net_pnl": -259.38, "profit_factor": 0.0, "trades": 3, "win_rate": 0.0}, "09:00 NY": {"avg_loss": -89.97, "avg_r": -0.33, "avg_win": 166.54, "expectancy": -16.68, "net_pnl": -116.76, "profit_factor": 0.74, "trades": 7, "win_rate": 0.286}, "10:00 NY": {"avg_loss": -92.22, "avg_r": 2.35, "avg_win": 216.41, "expectancy": 139.25, "net_pnl": 1114.02, "profit_factor": 7.04, "trades": 8, "win_rate": 0.75}, "11:00 NY": {"avg_loss": -50.48, "avg_r": -1.2, "avg_win": 0.0, "expectancy": -50.48, "net_pnl": -100.96, "profit_factor": 0.0, "trades": 2, "win_rate": 0.0}, "12:00 NY": {"avg_loss": -61.48, "avg_r": -0.11, "avg_win": 56.52, "expectancy": -2.48, "net_pnl": -4.96, "profit_factor": 0.92, "trades": 2, "win_rate": 0.5}, "13:00 NY": {"avg_loss": 0.0, "avg_r": 0.93, "avg_win": 36.02, "expectancy": 36.02, "net_pnl": 72.04, "profit_factor": null, "trades": 2, "win_rate": 1.0}, "14:00 NY": {"avg_loss": -50.81, "avg_r": -0.66, "avg_win": 18.52, "expectancy": -33.48, "net_pnl": -133.92, "profit_factor": 0.12, "trades": 4, "win_rate": 0.25}, "15:00 NY": {"avg_loss": 0.0, "avg_r": null, "avg_win": 8.76, "expectancy": 8.76, "net_pnl": 8.76, "profit_factor": null, "trades": 1, "win_rate": 1.0}}), false, false);
+bars("setups", grp({"breakout_chase": {"avg_loss": -77.22, "avg_r": -1.03, "avg_win": 0.0, "expectancy": -77.22, "net_pnl": -154.44, "profit_factor": 0.0, "trades": 2, "win_rate": 0.0}, "fvg_entry": {"avg_loss": -55.48, "avg_r": -0.04, "avg_win": 139.52, "expectancy": 9.52, "net_pnl": 28.56, "profit_factor": 1.26, "trades": 3, "win_rate": 0.333}, "liquidity_sweep_reversal": {"avg_loss": -61.48, "avg_r": 0.67, "avg_win": 94.52, "expectancy": 16.52, "net_pnl": 66.08, "profit_factor": 1.54, "trades": 4, "win_rate": 0.5}, "no_note": {"avg_loss": 0.0, "avg_r": null, "avg_win": 8.76, "expectancy": 8.76, "net_pnl": 8.76, "profit_factor": null, "trades": 1, "win_rate": 1.0}, "order_block": {"avg_loss": -45.48, "avg_r": 0.17, "avg_win": 36.77, "expectancy": 9.35, "net_pnl": 56.12, "profit_factor": 1.62, "trades": 6, "win_rate": 0.667}, "other": {"avg_loss": -90.66, "avg_r": -0.71, "avg_win": 154.56, "expectancy": -20.6, "net_pnl": -144.2, "profit_factor": 0.68, "trades": 7, "win_rate": 0.286}, "silver_bullet": {"avg_loss": -92.22, "avg_r": 2.61, "avg_win": 236.58, "expectancy": 142.64, "net_pnl": 998.46, "profit_factor": 6.41, "trades": 7, "win_rate": 0.714}, "unclear": {"avg_loss": -71.47, "avg_r": -1.42, "avg_win": 0.0, "expectancy": -71.47, "net_pnl": -214.42, "profit_factor": 0.0, "trades": 3, "win_rate": 0.0}}));
+bars("issues", grp({"clean": {"avg_loss": -63.66, "avg_r": 1.17, "avg_win": 188.93, "expectancy": 62.63, "net_pnl": 1002.14, "profit_factor": 2.97, "trades": 16, "win_rate": 0.5}, "note:early_entry": {"avg_loss": -67.72, "avg_r": -1.42, "avg_win": 0.0, "expectancy": -67.72, "net_pnl": -203.16, "profit_factor": 0.0, "trades": 3, "win_rate": 0.0}, "note:early_exit": {"avg_loss": 0.0, "avg_r": 0.77, "avg_win": 30.19, "expectancy": 30.19, "net_pnl": 90.56, "profit_factor": null, "trades": 3, "win_rate": 1.0}, "note:fomo_entry": {"avg_loss": -71.37, "avg_r": -1.26, "avg_win": 0.0, "expectancy": -71.37, "net_pnl": -356.86, "profit_factor": 0.0, "trades": 5, "win_rate": 0.0}, "note:no_plan": {"avg_loss": -68.47, "avg_r": -0.72, "avg_win": 86.04, "expectancy": -24.33, "net_pnl": -170.28, "profit_factor": 0.5, "trades": 7, "win_rate": 0.286}, "note:revenge_trade": {"avg_loss": -151.44, "avg_r": -0.39, "avg_win": 154.56, "expectancy": 1.56, "net_pnl": 6.24, "profit_factor": 1.02, "trades": 4, "win_rate": 0.5}, "rule:outside_killzone": {"avg_loss": -50.48, "avg_r": -1.2, "avg_win": 0.0, "expectancy": -50.48, "net_pnl": -100.96, "profit_factor": 0.0, "trades": 2, "win_rate": 0.0}, "rule:over_max_trades": {"avg_loss": -27.48, "avg_r": -0.05, "avg_win": 19.64, "expectancy": 3.93, "net_pnl": 11.8, "profit_factor": 1.43, "trades": 3, "win_rate": 0.667}, "rule:oversized": {"avg_loss": -151.44, "avg_r": -0.39, "avg_win": 154.56, "expectancy": 1.56, "net_pnl": 6.24, "profit_factor": 1.02, "trades": 4, "win_rate": 0.5}}));
+</script>
+
+
+
+
+</body>
+</html>

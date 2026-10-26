@@ -11,6 +11,7 @@
     <a class="brand" href="{{ url_for('home') }}">Trade Journal <span>AI</span></a>
     <nav>
       <a href="{{ url_for('home') }}" class="{{ 'on' if request.endpoint == 'home' }}">{{ 'Overview' if demo else 'Days' }}</a>
+      <a href="{{ url_for('history_page') }}" class="{{ 'on' if request.endpoint == 'history_page' }}">Timeline &amp; coach</a>
       <a href="{{ url_for('how') }}" class="{{ 'on' if request.endpoint == 'how' }}">How it works</a>
     </nav>
   </div></header>

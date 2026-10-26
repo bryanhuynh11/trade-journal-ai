@@ -123,6 +123,36 @@ First mock run: my silver bullet trade at 10:04 came out as `killzone: none` and
 
 **Verified.** I served `docs/` locally and loaded every page in Chromium: all links are relative, there are 0 failed requests and 0 JS errors, and the charts render. On this real run trade 2 came back `unclear` (it was `breakout_chase` before). That's model variance on a vague-ish note, and something to measure in the eval.
 
+## 2026-10-25: Change: timeline of all trades + "what could I do better?" coach chat
+
+**Plan.** I wanted to see every past trade on one timeline with a total P&L chart, and to ask Claude how to improve.
+
+**Model/code split for the new parts.**
+- Code (`tj/history.py`): merges every imported day, re-deriving numbers from each CSV and merging Claude's tags where present. It computes the running P&L, max drawdown, P&L by day / hour / setup / issue / emotion / side, and a tilt check (the trade right after a loss, same day only).
+- Model (`tj/coach.py`): a second `claude -p` call with a coaching system prompt (process only, no market calls, no investment advice). It sees **only** `history.coach_context()`, the code-computed stats plus my 15 most recent notes. The UI shows that exact text under "What Claude sees".
+- Code check: `coach.check_numbers()` pulls every $ amount and % out of the answer and matches it against the numbers in the context. Signs are ignored and whole-dollar rounding is allowed; anything else gets flagged ⚠ under the answer. This is the coach's version of the tagger's "evidence must be an exact quote" rule. The model can phrase things however it likes, but it can't invent a number without it showing.
+- The chat keeps the last 6 turns, so follow-up questions work.
+
+**UI.** A new "Timeline & coach" page:
+- stat tiles
+- a timeline with one bar per trade and a running-total line (click a bar to open that day)
+- P&L by day, by hour, by setup and by issue
+- the tilt check and a scrollable trade log
+- a sticky chat panel with suggested questions
+
+"Tag them with Claude" tags every untagged day in a row. "Load 2-week sample" loads 33 made-up trades.
+
+**Sample data.** `sample/make_history.py` (fixed seed) generates 9 more TradeSea days with planted patterns: silver bullets work, chasing and revenge trades lose, lunch trades bleed, PM winners get cut early.
+
+**Verified.**
+- Tagged all 10 days through the UI with real `claude -p` (33 trades, 0 validator rejections).
+- Asked the coach 2 questions. Both answers named the planted leaks: FOMO and early entries in the 08:00 NY hour, `no_plan`, and the 08:47 FOMO → 08:55 revenge pair at double size. Both suggested sensible rules.
+- Every figure in both answers passed the number check.
+- One thing I didn't expect: the tilt check shows the trade *after* a loss is actually net positive (54% win rate). Revenge trades are only part of those trades. The coach handled that correctly: it said revenge trades are "$6.24 net, but your notes call them gambling", rather than calling them fine.
+- 8 new tests (33 total): equity, drawdown, after-loss logic, and number-check pass/fail cases.
+- The public demo now includes the timeline page with the two real coach answers baked in (the static site can't call Claude).
+- Fixed a phone-width overflow (grid children needed `min-width: 0`).
+
 ---
 
 ## Next / ideas

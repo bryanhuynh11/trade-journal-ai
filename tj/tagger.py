@@ -90,14 +90,14 @@ def extract_json(text: str):
 class ClaudeCLI:
     """Runs `claude -p` headless. Uses your Claude Code login, not a paid API key."""
 
-    def __init__(self, model: str | None = None, timeout: int = 120):
+    def __init__(self, model: str | None = None, timeout: int = 120, system: str | None = None):
         if not shutil.which("claude"):
             raise RuntimeError("`claude` not found on PATH. Install Claude Code or use --mock.")
-        self.model, self.timeout = model, timeout
+        self.model, self.timeout, self.system = model, timeout, system or SYSTEM
 
     def __call__(self, prompt: str) -> tuple[str, dict]:
         cmd = ["claude", "-p", "--output-format", "json", "--tools", "",
-               "--system-prompt", SYSTEM, "--no-session-persistence"]
+               "--system-prompt", self.system, "--no-session-persistence"]
         if self.model:
             cmd += ["--model", self.model]
         t0 = time.time()

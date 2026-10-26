@@ -11,6 +11,7 @@
     <a class="brand" href="index.html">Trade Journal <span>AI</span></a>
     <nav>
       <a href="index.html" class="">Overview</a>
+      <a href="history.html" class="">Timeline &amp; coach</a>
       <a href="how.html" class="on">How it works</a>
     </nav>
   </div></header>
@@ -44,6 +45,18 @@
   <div class="arrow">↓</div>
   <div class="step"><div class="n">6</div><div><b>Stats &amp; report</b> <span class="who code">CODE</span>
     <p><code>tj/report.py</code> groups P&amp;L by setup, killzone, issue and emotion. The model never does math.</p></div></div>
+</div>
+
+<h2>Timeline &amp; coach</h2>
+<div class="flow">
+  <div class="step"><div class="n">7</div><div><b>All-trades stats</b> <span class="who code">CODE</span>
+    <p><code>tj/history.py</code> merges every imported day and computes the running P&amp;L, max drawdown, P&amp;L by day, hour, setup and issue, and a tilt check (the trade right after a loss).</p></div></div>
+  <div class="arrow">↓</div>
+  <div class="step m"><div class="n">8</div><div><b>Coach answers your question</b> <span class="who model">MODEL</span>
+    <p><code>tj/coach.py</code> sends Claude <i>only</i> those stats plus your recent notes (you can see the exact text under "What Claude sees") and asks for process coaching. Claude isn't allowed to compute anything new.</p></div></div>
+  <div class="arrow">↓</div>
+  <div class="step"><div class="n">9</div><div><b>Number check</b> <span class="who code">CODE</span>
+    <p>Every $ amount and % in the answer is matched against the stats Claude was given. A whole-dollar rounding is allowed, but anything else that doesn't match is flagged ⚠ "not in your stats" right under the answer.</p></div></div>
 </div>
 
 <h2>What the validator allows</h2>

@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Timeline &amp; coach{% endblock %}
+{% block body %}
+<div class="row" style="margin-bottom:4px">
+  <h1>All trades</h1>
+  {% if s.trades %}<span class="hint">{{ s.first }} → {{ s.last }} · {{ s.by_day|length }} days · {{ s.trades }} trades</span>{% endif %}
+</div>
+<p class="sub">Every trade from every day you've imported. The charts are all computed by Python. The coach on the right is Claude reading those same numbers plus your notes.</p>
+
+{% if not s.trades %}
+<div class="panel">No trades yet. <a href="{{ url_for('home') }}">Import a day</a>, or load the 2-week sample on the Days page.</div>
+{% else %}
+
+{% if untagged and not demo %}
+<div class="panel row" style="margin-bottom:14px">
+  <span class="hint">{{ untagged|length }} day{{ 's' if untagged|length > 1 }} with notes aren't tagged yet, so their setup and mistake labels show as <code>untagged</code>.</span>
+  <div class="spacer"></div>
+  <label class="check"><input type="checkbox" id="tagmock"> Mock</label>
+  <button class="btn primary" id="tagall">Tag them with Claude</button>
+  <span class="hint" id="tagstatus"></span>
+</div>
+{% endif %}
+
+<div class="grid g5">
+  <div class="panel tile"><div class="k">Total P&amp;L <span class="who code">CODE</span></div><div class="v {{ 'pos' if s.total.net_pnl > 0 else 'neg' if s.total.net_pnl < 0 }}">{{ s.total.net_pnl|money }}</div></div>
+  <div class="panel tile"><div class="k">Win rate</div><div class="v">{{ '%.0f'|format(s.total.win_rate * 100) }}%</div><div class="hint">avg win {{ s.total.avg_win|money }} · avg loss {{ s.total.avg_loss|money }}</div></div>
+  <div class="panel tile"><div class="k">Profit factor</div><div class="v">{{ s.total.profit_factor if s.total.profit_factor is not none else '—' }}</div><div class="hint">expectancy {{ s.total.expectancy|money }}/trade</div></div>
+  <div class="panel tile"><div class="k">Max drawdown</div><div class="v neg">{{ s.max_drawdown|money }}</div><div class="hint">peak-to-trough, closed trades</div></div>
+  <div class="panel tile"><div class="k">Green days</div><div class="v">{{ s.green_days }}/{{ s.by_day|length }}</div><div class="hint">best {{ s.best_day.pnl|money }} · worst {{ s.worst_day.pnl|money }}</div></div>
+</div>
+
+<div class="hist-layout">
+  <div class="hist-main">
+    <div class="panel" style="margin-top:14px">
+      <div class="row"><h3 style="margin:0">Timeline: every trade + running total <span class="who code">CODE</span></h3><div class="spacer"></div>
+        <span class="hint">Bars = each trade · line = cumulative P&amp;L · click a bar to open that day</span></div>
+      <div style="height:300px"><canvas id="timeline"></canvas></div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="panel"><h3>P&amp;L by day</h3><canvas id="daily"></canvas></div>
+      <div class="panel"><h3>P&amp;L by entry hour (NY)</h3><canvas id="hours"></canvas></div>
+      <div class="panel"><h3>P&amp;L by setup <span class="who model">MODEL</span> label</h3><div><canvas id="setups"></canvas></div></div>
+      <div class="panel"><h3>P&amp;L by issue <span class="who code">CODE</span> + <span class="who model">MODEL</span></h3><div><canvas id="issues"></canvas></div></div>
+    </div>
+    {% if s.after_loss %}
+    <div class="panel" style="margin-top:14px">
+      <h3>Tilt check <span class="who code">CODE</span></h3>
+      The trade right after a loss (same day): <b>{{ s.after_loss.trades }}</b> trades, net
+      <b class="{{ 'pos' if s.after_loss.net_pnl > 0 else 'neg' }}">{{ s.after_loss.net_pnl|money }}</b>,
+      win rate <b>{{ '%.0f'|format(s.after_loss.win_rate * 100) }}%</b>
+      vs <b>{{ '%.0f'|format(s.total.win_rate * 100) }}%</b> overall.
+    </div>
+    {% endif %}
+
+    <h2>Trade log</h2>
+    <div class="panel tradelog">
+      <table>
+        <tr><th>When (NY)</th><th>Trade</th><th class="num">P&amp;L</th><th class="num">Running</th><th>Killzone</th><th>Setup</th><th>Issues</th></tr>
+        {% for r in rows|reverse %}
+        <tr>
+          <td class="mono">{% if not demo or r.day == demo.stem %}<a href="{{ url_for('day_report', stem=r.day) if r.tagged else url_for('day', stem=r.day) }}">{{ r.entry_time[5:16] }}</a>{% else %}{{ r.entry_time[5:16] }}{% endif %}</td>
+          <td>{{ r.side }} {{ r.qty }} {{ r.root }}</td>
+          <td class="num mono {{ 'pos' if r.pnl > 0 else 'neg' if r.pnl < 0 }}">{{ r.pnl|money }}</td>
+          <td class="num mono">{{ s.equity[loop.revindex0]|money }}</td>
+          <td><span class="chip">{{ r.killzone }}</span></td>
+          <td><span class="{{ 'setup' if r.tagged else 'hint' }}">{{ r.setup }}</span></td>
+          <td>{% for i in r.issues if i != 'clean' %}<span class="chip {{ 'rule' if i.startswith('rule:') else 'note' }}">{{ i }}</span>{% endfor %}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <aside class="hist-chat">
+    <div class="panel chat">
+      <div class="row" style="margin-bottom:8px"><h3 style="margin:0">Ask Claude: what could I do better? <span class="who model">MODEL</span></h3></div>
+      <div id="msgs" class="msgs">
+        {% if demo %}
+          {% for qa in canned %}
+          <div class="msg user">{{ qa.q }}</div>
+          <div class="msg bot">{{ qa.a }}
+            <div class="check {{ 'ok' if not qa.unverified else 'warn' }}">{% if qa.unverified %}⚠ not in your stats: {{ qa.unverified|join(', ') }}{% else %}✓ {{ qa.checked }} figure{{ '' if qa.checked == 1 else 's' }} checked against your stats{% endif %} · {{ qa.seconds }}s</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="msg bot">I've got the stats from your {{ s.trades }} trades and your recent notes. Ask me what's costing you money, which setup to focus on, or what rules to set for next week.</div>
+        {% endif %}
+      </div>
+      {% if demo %}
+      <p class="hint" style="margin:10px 0 0">These answers came from a real <code>claude -p</code> run when this snapshot was built. In the live app you type your own questions here.</p>
+      {% else %}
+      <div class="suggest">
+        <button class="chip" data-q="What's my biggest leak right now?">Biggest leak?</button>
+        <button class="chip" data-q="Which setup should I focus on and which should I drop?">Focus on which setup?</button>
+        <button class="chip" data-q="Give me 3 concrete rules for next week based on this.">3 rules for next week</button>
+      </div>
+      <form id="chatform" class="row" style="margin-top:8px; flex-wrap:nowrap">
+        <input type="text" id="q" placeholder="Ask about your trading…" autocomplete="off">
+        <button class="btn primary" id="send">Send</button>
+      </form>
+      <label class="check" style="margin-top:6px"><input type="checkbox" id="mock"> Mock (no Claude)</label>
+      {% endif %}
+      <details style="margin-top:10px">
+        <summary>What Claude sees (the only data it gets)</summary>
+        <pre>{{ context }}</pre>
+      </details>
+      <p class="hint" style="margin:8px 0 0">Every $ and % in an answer is checked against these stats by code. A figure that isn't there gets flagged ⚠. It's process coaching, not financial advice.</p>
+    </div>
+  </aside>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if s.trades %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script>
+const css = getComputedStyle(document.documentElement);
+const C = (v) => css.getPropertyValue(v).trim();
+Chart.defaults.color = C("--muted"); Chart.defaults.borderColor = C("--line"); Chart.defaults.font.family = css.fontFamily;
+const money = (v) => (v < 0 ? "-$" : "$") + Math.abs(v).toFixed(2);
+
+const pts = {{ points|tojson }};
+const equity = {{ s.equity|tojson }};
+const DEMO = {{ 'true' if demo else 'false' }};
+new Chart(document.getElementById("timeline"), {
+  data: {
+    labels: pts.map(p => p.t.slice(5, 16)),
+    datasets: [
+      { type: "line", label: "Running total", data: equity, borderColor: C("--code"), backgroundColor: "transparent",
+        pointRadius: 0, tension: .2, yAxisID: "y", order: 0 },
+      { type: "bar", label: "Trade P&L", data: pts.map(p => p.pnl), yAxisID: "y", order: 1,
+        backgroundColor: pts.map(p => p.pnl >= 0 ? C("--green") : C("--red")), borderRadius: 2 },
+    ]
+  },
+  options: {
+    maintainAspectRatio: false,
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false }, tooltip: { callbacks: {
+      title: (c) => { const p = pts[c[0].dataIndex]; return `${p.t.slice(0,16)} NY · ${p.side} ${p.qty} · ${p.kz}`; },
+      label: (c) => c.dataset.type === "bar" ? `Trade: ${money(c.raw)} · ${pts[c.dataIndex].setup}` : `Running: ${money(c.raw)}`,
+      afterBody: (c) => pts[c[0].dataIndex].issues.filter(i => i !== "clean").join(", ")
+    } } },
+    scales: { x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } }, y: { ticks: { callback: v => "$" + v } } },
+    onClick: (e, els) => {
+      if (!els.length) return;
+      const p = pts[els[0].index];
+      if (DEMO) { if (p.day === {{ (demo.stem if demo else '')|tojson }}) location.href = "report.html"; return; }
+      location.href = `/day/${p.day}/report`;
+    }
+  }
+});
+
+function bars(id, rows, horizontal = true, sort = true) {
+  if (sort) rows = [...rows].sort((a, b) => a.net - b.net);
+  if (horizontal) document.getElementById(id).parentElement.style.height = (60 + rows.length * 26) + "px";
+  new Chart(document.getElementById(id), {
+    type: "bar",
+    data: { labels: rows.map(r => r.k), datasets: [{ data: rows.map(r => r.net),
+            backgroundColor: rows.map(r => r.net >= 0 ? C("--green") : C("--red")), borderRadius: 4 }] },
+    options: { indexAxis: horizontal ? "y" : "x", plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: (c) => { const r = rows[c.dataIndex];
+        return `${money(r.net)} · ${r.n} trade${r.n > 1 ? "s" : ""}` + (r.wr !== undefined ? ` · ${Math.round(r.wr * 100)}% win` : ""); } } } },
+      maintainAspectRatio: !horizontal,
+      scales: { [horizontal ? "x" : "y"]: { ticks: { callback: v => "$" + v } },
+                [horizontal ? "y" : "x"]: { ticks: { autoSkip: !horizontal } } } }
+  });
+}
+const grp = (g) => Object.entries(g).map(([k, v]) => ({ k, net: v.net_pnl, n: v.trades, wr: v.win_rate }));
+bars("daily", {{ s.by_day|tojson }}.map(d => ({ k: d.date.slice(5), net: d.pnl, n: d.trades })), false, false);
+bars("hours", grp({{ s.by_hour|tojson }}), false, false);
+bars("setups", grp({{ s.by_setup|tojson }}));
+bars("issues", grp({{ s.by_issue|tojson }}));
+</script>
+
+{% if not demo %}
+<script>
+const $ = (s) => document.querySelector(s);
+const msgs = $("#msgs");
+const convo = [];
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function add(role, html) { const d = document.createElement("div"); d.className = "msg " + role; d.innerHTML = html; msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d; }
+
+async function ask(q) {
+  q = q.trim(); if (!q) return;
+  add("user", esc(q)); $("#q").value = ""; $("#send").disabled = true;
+  const wait = add("bot typing", "Claude is reading your stats…");
+  const t0 = Date.now();
+  try {
+    const r = await fetch("/api/coach", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q, history: convo, mock: $("#mock").checked }) });
+    const j = await r.json();
+    wait.remove();
+    if (!j.ok) { add("bot err", esc(j.error)); return; }
+    const check = j.unverified.length
+      ? `<div class="check warn">⚠ not in your stats: ${j.unverified.map(esc).join(", ")}</div>`
+      : `<div class="check ok">✓ ${j.checked} figure${j.checked === 1 ? "" : "s"} checked against your stats · ${j.seconds}s</div>`;
+    add("bot", esc(j.answer) + check);
+    convo.push({ role: "user", content: q }, { role: "assistant", content: j.answer });
+  } catch (e) { wait.remove(); add("bot err", esc(String(e))); }
+  finally { $("#send").disabled = false; $("#q").focus(); }
+}
+$("#chatform").onsubmit = (e) => { e.preventDefault(); ask($("#q").value); };
+document.querySelectorAll(".suggest .chip").forEach(b => b.onclick = () => ask(b.dataset.q));
+
+const tagBtn = $("#tagall");
+if (tagBtn) tagBtn.onclick = async () => {
+  tagBtn.disabled = true;
+  const days = {{ untagged|tojson }};
+  for (let i = 0; i < days.length; i++) {
+    $("#tagstatus").textContent = `Tagging ${days[i]} (${i + 1}/${days.length})…`;
+    const r = await fetch(`/api/day/${days[i]}/tag`, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mock: $("#tagmock").checked }) });
+    if (!r.ok) { $("#tagstatus").textContent = (await r.json()).error; tagBtn.disabled = false; return; }
+    while (true) {
+      await new Promise(res => setTimeout(res, 1000));
+      const j = await (await fetch(`/api/day/${days[i]}/job`)).json();
+      $("#tagstatus").textContent = `Tagging ${days[i]} (${i + 1}/${days.length}): trade ${j.done}/${j.total}`;
+      if (j.error) { $("#tagstatus").textContent = j.error; tagBtn.disabled = false; return; }
+      if (j.finished) break;
+    }
+  }
+  location.reload();
+};
+</script>
+{% endif %}
+{% endif %}
+{% endblock %}

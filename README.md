@@ -23,7 +23,10 @@ python app.py                       # → open http://127.0.0.1:5050
 2. **Notes**: each trade shows what code computed (`CODE`: P&L, killzone, `rule:` flags). You type a note and your $ risk (`YOU`).
 3. **Save & tag with Claude**: a progress bar shows each `claude -p` call (about 6 s per trade). Tick **Mock** to skip Claude.
 4. **Report**: stat tiles, an equity curve, P&L by issue / setup / emotion, and a card for each trade with Claude's labels (`MODEL`). The labels include the exact quote from your note it used as evidence. Each card has a **"See exactly what Claude was sent and what came back"** section that shows the prompt, the validated JSON, each attempt, the time taken and the cost.
-5. **How it works**: the whole pipeline on one page, including what the validator allows.
+5. **Timeline & coach**: every trade from every imported day on one timeline, with a bar for each trade and a running P&L line. Below it are P&L by day, entry hour, setup and issue, a max-drawdown figure and a tilt check (the trade right after a loss). On the right is a **mini chat** where you ask Claude "what could I do better?".
+6. **How it works**: the whole pipeline on one page, including what the validator allows.
+
+There's also a **Load 2-week sample** button (33 made-up trades with planted patterns) so the timeline and coach have something to work with.
 
 The web app is only a front end. `app.py` calls the same `tj/pipeline.py` functions as the CLI, so the model's job doesn't change. Everything stays on your machine: notes in `notes/`, uploads in `data/`, results in `out/` (all gitignored). Chart.js is bundled in `static/vendor/`, so it works offline (except the Claude call itself).
 
@@ -60,7 +63,9 @@ python journal.py run <notes.csv>
 | **Behavioural mistakes** (FOMO, revenge, moved stop, early exit…) | **Model** | Same reason: these come from what I wrote. |
 | **Emotion, followed_plan, one-line lesson** | **Model** | Reading tone and summarizing is what the model is good at. |
 | Every model field | **Code checks** (`tj/schema.py`) | Values must come from fixed lists. `confidence` must be 0–1. The lesson must be ≤140 chars. There can be no extra keys. **`evidence` must be an exact quote from my note**, so a label can't rest on something I never wrote. |
-| Stats, grouping, report | **Code** (`tj/report.py`) | The model never does math. |
+| Stats, grouping, report, all-trades timeline, drawdown, tilt check | **Code** (`tj/report.py`, `tj/history.py`) | The model never does math. |
+| **Coach answer** ("what could I do better?") | **Model** (`tj/coach.py`) | It gets *only* the code-computed stats + recent notes, shown in the UI under "What Claude sees". |
+| Every $ and % in the coach's answer | **Code checks** (`coach.check_numbers`) | Each figure must match a number in the stats it was given (whole-dollar rounding allowed). Anything else is flagged ⚠ "not in your stats". |
 
 If something in the report is wrong, the `rule:` / `note:` prefix tells me who to blame: `rule:` comes from code, `note:` comes from the model.
 
@@ -71,7 +76,7 @@ If something in the report is wrong, the `rule:` / `note:` prefix tells me who t
 python journal.py template sample/tradesea_2026-10-23.csv --out /tmp/try.notes.csv
 python journal.py run sample/2026-10-23.notes.csv          # real Claude, ~6 s per trade
 python journal.py run sample/2026-10-23.notes.csv --mock   # keyword stand-in, no Claude
-python -m unittest discover tests                           # 25 tests, no Claude calls
+python -m unittest discover tests                           # 33 tests, no Claude calls
 ```
 
 For your own trades: in TradeSea, open Orders / Trade History and export a CSV (it needs Time, Symbol, Qty, Side, Avg Price; Commission and Status are used if present). Then run `template`, fill in the notes, then `run`. A Tradovate Performance CSV also works; the file type is detected from its headers.
@@ -105,8 +110,11 @@ GitHub Pages serves that folder: no server, no Claude calls, always up. Re-run `
 - `build_demo.py` → `docs/`: the public read-only demo (GitHub Pages)
 - `Start Trade Journal.command`: double-click launcher for macOS
 - `tj/pipeline.py`: the two steps (CSV → notes file, notes → tags + report), shared by the CLI and the web app
-- `tj/tagger.py`: **the only file that calls a model**. It holds the prompt, the `claude -p` call, JSON extraction, retry, cache and the mock
-- `tj/schema.py`: the model's output contract and validator
+- `tj/tagger.py`: the tagging model call. It holds the prompt, the `claude -p` call, JSON extraction, retry, cache and the mock
+- `tj/schema.py`: the tagger's output contract and validator
+- `tj/history.py`: all-trades stats for the timeline and the coach's context
+- `tj/coach.py`: the coach model call + number check
+- `sample/make_history.py`: generates the made-up 2-week sample
 - `tj/parse.py`, `tj/facts.py`, `tj/rules.py`, `tj/report.py`: plain code
 - `LOG.md`: plan and change log
 - `CLAUDE.md`: instructions for Claude Code when working in this repo

@@ -11,6 +11,7 @@
     <a class="brand" href="index.html">Trade Journal <span>AI</span></a>
     <nav>
       <a href="index.html" class="">Overview</a>
+      <a href="history.html" class="">Timeline &amp; coach</a>
       <a href="how.html" class="">How it works</a>
     </nav>
   </div></header>
@@ -65,7 +66,7 @@
       <div class="spacer"></div>
       <span class="setup">liquidity_sweep_reversal</span>
       <span class="hint">conf 0.8</span>
-      <span class="chip ok">ok</span>
+      <span class="chip ok">cached</span>
     </div>
     <div style="margin-top:8px">
       <span class="chip ok">clean</span>
@@ -73,7 +74,7 @@
       <span class="chip note">followed plan</span>
     </div>
     <div class="quote">“London sweep of Asia high at 21490, waited for displacement down and shorted the FVG retest. Plan trade, stop above the high.”</div>
-    <div class="lesson">→ Keep waiting for sweep, displacement, and FVG retest with a defined stop; this patient process produced a clean 3R.</div>
+    <div class="lesson">→ Keep waiting for sweep, displacement, then FVG retest with a defined stop above the high; this patient process produced a clean 3R.</div>
     
     
 
@@ -121,13 +122,12 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
   "emotion": "calm",
   "evidence": "London sweep of Asia high at 21490, waited for displacement down and shorted the FVG retest. Plan trade, stop above the high.",
   "followed_plan": true,
-  "lesson": "Keep waiting for sweep, displacement, and FVG retest with a defined stop; this patient process produced a clean 3R.",
+  "lesson": "Keep waiting for sweep, displacement, then FVG retest with a defined stop above the high; this patient process produced a clean 3R.",
   "mistakes": [],
   "setup": "liquidity_sweep_reversal"
 }</pre>
           
-          <div class="hint">attempt 1: passed · 6.7s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0136
-            </div>
+          <div class="hint">From cache: no model call this run.</div>
           
         </div>
       </div>
@@ -146,7 +146,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <div class="spacer"></div>
       <span class="setup">unclear</span>
       <span class="hint">conf 0.3</span>
-      <span class="chip ok">ok</span>
+      <span class="chip ok">cached</span>
     </div>
     <div style="margin-top:8px">
       <span class="chip note">note:early_entry</span><span class="chip note">note:fomo_entry</span>
@@ -154,7 +154,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <span class="chip note">off plan</span>
     </div>
     <div class="quote">“Got in too early before the 8:30 news range low was even taken. Saw the candle ripping and FOMO&#39;d.”</div>
-    <div class="lesson">→ Wait for the news range low to be swept and confirmed before entering; don&#39;t chase a ripping candle.</div>
+    <div class="lesson">→ Wait for the 8:30 range low to be swept before entering; don&#39;t chase a fast candle.</div>
     
     
 
@@ -202,7 +202,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
   "emotion": "anxious",
   "evidence": "Got in too early before the 8:30 news range low was even taken. Saw the candle ripping and FOMO\u0027d.",
   "followed_plan": false,
-  "lesson": "Wait for the news range low to be swept and confirmed before entering; don\u0027t chase a ripping candle.",
+  "lesson": "Wait for the 8:30 range low to be swept before entering; don\u0027t chase a fast candle.",
   "mistakes": [
     "early_entry",
     "fomo_entry"
@@ -210,8 +210,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
   "setup": "unclear"
 }</pre>
           
-          <div class="hint">attempt 1: passed · 6.4s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0134
-            </div>
+          <div class="hint">From cache: no model call this run.</div>
           
         </div>
       </div>
@@ -230,7 +229,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <div class="spacer"></div>
       <span class="setup">other</span>
       <span class="hint">conf 0.8</span>
-      <span class="chip ok">ok</span>
+      <span class="chip ok">cached</span>
     </div>
     <div style="margin-top:8px">
       <span class="chip rule">rule:oversized</span><span class="chip note">note:revenge_trade</span><span class="chip note">note:no_plan</span>
@@ -296,8 +295,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
   "setup": "other"
 }</pre>
           
-          <div class="hint">attempt 1: passed · 6.7s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0133
-            </div>
+          <div class="hint">From cache: no model call this run.</div>
           
         </div>
       </div>
@@ -316,7 +314,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <div class="spacer"></div>
       <span class="setup">silver_bullet</span>
       <span class="hint">conf 0.9</span>
-      <span class="chip ok">ok</span>
+      <span class="chip ok">cached</span>
     </div>
     <div style="margin-top:8px">
       <span class="chip ok">clean</span>
@@ -324,7 +322,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <span class="chip note">followed plan</span>
     </div>
     <div class="quote">“Silver bullet window, FVG on the 1m after SSL sweep at 21365. Entered at the gap, target the 21420 BSL. Took it to target.”</div>
-    <div class="lesson">→ Keep repeating this process: sweep, FVG entry in the window, and a defined liquidity target held through to completion.</div>
+    <div class="lesson">→ Keep waiting for sweep-plus-FVG setups inside the silver bullet window and holding to the predefined liquidity target.</div>
     
     
 
@@ -372,13 +370,12 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
   "emotion": "confident",
   "evidence": "Silver bullet window, FVG on the 1m after SSL sweep at 21365. Entered at the gap, target the 21420 BSL. Took it to target.",
   "followed_plan": true,
-  "lesson": "Keep repeating this process: sweep, FVG entry in the window, and a defined liquidity target held through to completion.",
+  "lesson": "Keep waiting for sweep-plus-FVG setups inside the silver bullet window and holding to the predefined liquidity target.",
   "mistakes": [],
   "setup": "silver_bullet"
 }</pre>
           
-          <div class="hint">attempt 1: passed · 6.1s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0136
-            </div>
+          <div class="hint">From cache: no model call this run.</div>
           
         </div>
       </div>
@@ -397,7 +394,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <div class="spacer"></div>
       <span class="setup">other</span>
       <span class="hint">conf 0.8</span>
-      <span class="chip ok">ok</span>
+      <span class="chip ok">cached</span>
     </div>
     <div style="margin-top:8px">
       <span class="chip rule">rule:outside_killzone</span><span class="chip rule">rule:over_max_trades</span><span class="chip note">note:no_plan</span>
@@ -405,7 +402,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <span class="chip note">off plan</span>
     </div>
     <div class="quote">“Bored at lunch, shorted a &#39;top&#39; with no setup.”</div>
-    <div class="lesson">→ Boredom isn&#39;t a setup; if you can&#39;t name your entry criteria before clicking, stay flat and step away from the screen.</div>
+    <div class="lesson">→ Boredom is not a trade signal; if no defined setup is present, stay flat and step away from the screen.</div>
     
     
 
@@ -456,15 +453,14 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
   "emotion": "bored",
   "evidence": "Bored at lunch, shorted a \u0027top\u0027 with no setup.",
   "followed_plan": false,
-  "lesson": "Boredom isn\u0027t a setup; if you can\u0027t name your entry criteria before clicking, stay flat and step away from the screen.",
+  "lesson": "Boredom is not a trade signal; if no defined setup is present, stay flat and step away from the screen.",
   "mistakes": [
     "no_plan"
   ],
   "setup": "other"
 }</pre>
           
-          <div class="hint">attempt 1: passed · 6.4s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0133
-            </div>
+          <div class="hint">From cache: no model call this run.</div>
           
         </div>
       </div>
@@ -483,7 +479,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <div class="spacer"></div>
       <span class="setup">order_block</span>
       <span class="hint">conf 0.8</span>
-      <span class="chip ok">ok</span>
+      <span class="chip ok">cached</span>
     </div>
     <div style="margin-top:8px">
       <span class="chip rule">rule:over_max_trades</span><span class="chip note">note:early_exit</span>
@@ -491,7 +487,7 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
       <span class="chip note">off plan</span>
     </div>
     <div class="quote">“Cut it early at +4 because I was nervous after the morning, it ran another 30 pts after.”</div>
-    <div class="lesson">→ Predefine your target and let the trade reach it; don&#39;t let earlier losses drive an early exit.</div>
+    <div class="lesson">→ Predefine your target and let the trade reach it; don&#39;t let earlier losses shrink your exit.</div>
     
     
 
@@ -541,15 +537,14 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
   "emotion": "anxious",
   "evidence": "Cut it early at +4 because I was nervous after the morning, it ran another 30 pts after.",
   "followed_plan": false,
-  "lesson": "Predefine your target and let the trade reach it; don\u0027t let earlier losses drive an early exit.",
+  "lesson": "Predefine your target and let the trade reach it; don\u0027t let earlier losses shrink your exit.",
   "mistakes": [
     "early_exit"
   ],
   "setup": "order_block"
 }</pre>
           
-          <div class="hint">attempt 1: passed · 6.4s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0134
-            </div>
+          <div class="hint">From cache: no model call this run.</div>
           
         </div>
       </div>
@@ -587,11 +582,11 @@ If the note is too vague to tell the setup, use &#34;unclear&#34; and a low conf
 
 <h2>Model run</h2>
 <div class="grid g5">
-  <div class="panel tile"><div class="k">Model calls</div><div class="v">6</div></div>
+  <div class="panel tile"><div class="k">Model calls</div><div class="v">0</div></div>
   <div class="panel tile"><div class="k">Rejected by validator</div><div class="v">0</div></div>
-  <div class="panel tile"><div class="k">Time in model</div><div class="v">38.7s</div></div>
-  <div class="panel tile"><div class="k">API-equivalent cost</div><div class="v">$0.0806</div><div class="hint">Covered by Claude Code plan, not billed</div></div>
-  <div class="panel tile"><div class="k">Tag status</div><div style="margin-top:6px"><span class="chip">ok 6</span><span class="chip">skipped_no_note 1</span></div></div>
+  <div class="panel tile"><div class="k">Time in model</div><div class="v">0s</div></div>
+  <div class="panel tile"><div class="k">API-equivalent cost</div><div class="v">$0.0000</div><div class="hint">Covered by Claude Code plan, not billed</div></div>
+  <div class="panel tile"><div class="k">Tag status</div><div style="margin-top:6px"><span class="chip">cached 6</span><span class="chip">skipped_no_note 1</span></div></div>
 </div>
 
   </main>

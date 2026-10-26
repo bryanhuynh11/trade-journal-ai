@@ -17,7 +17,7 @@ from datetime import date
 from pathlib import Path
 
 import app as webapp
-from tj import pipeline
+from tj import coach, history, pipeline
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "docs"
@@ -29,7 +29,12 @@ PAGES = {                      # url in the Flask app -> file in the static site
     "/how": "how.html",
     f"/day/{STEM}": "notes.html",
     f"/day/{STEM}/report": "report.html",
+    "/history": "history.html",
 }
+COACH_QUESTIONS = [
+    "What's my biggest leak right now?",
+    "Give me 3 concrete rules for next week based on this.",
+]
 
 
 def relink(html: str) -> str:
@@ -50,18 +55,36 @@ def main():
     args = ap.parse_args()
 
     client = webapp.app.test_client()
-    client.post("/sample")                                   # fresh sample day (TradeSea fills + my notes)
-    notes = pipeline.NOTES_DIR / f"{STEM}.notes.csv"
+    client.post("/sample-history")                           # sample day + 2-week history (TradeSea fills + notes)
+    stems = sorted(pipeline.day_stem(p) for p in pipeline.NOTES_DIR.glob("sample-*.notes.csv"))
 
-    if not (args.reuse and pipeline.load_result(STEM)):
-        print("Tagging the sample day" + (" (MOCK)" if args.mock else " with claude -p") + "...")
-        res = pipeline.tag_day(notes, pipeline.make_backend(mock=args.mock), use_cache=False,
-                               on_progress=lambda i, n, x, t: print(f"  {i}/{n} {t['status']:<16} {t['setup']}"))
-    res = pipeline.load_result(STEM)
-    if res.get("mock") and not args.mock:
-        raise SystemExit("last result is MOCK; run without --reuse to tag with Claude")
+    backend = pipeline.make_backend(mock=args.mock)
+    for stem in stems:
+        res = pipeline.load_result(stem)
+        if args.reuse and res and res.get("mock") == args.mock:
+            continue
+        print(f"Tagging {stem}" + (" (MOCK)" if args.mock else " with claude -p") + "...")
+        # the tag cache only holds answers that came from Claude and passed the validator, so reusing it is honest
+        pipeline.tag_day(pipeline.NOTES_DIR / f"{stem}.notes.csv", backend, use_cache=not args.mock,
+                         on_progress=lambda i, n, x, t: print(f"  {i}/{n} {t['status']:<16} {t['setup']}"))
+    for stem in stems:
+        if pipeline.load_result(stem).get("mock") and not args.mock:
+            raise SystemExit(f"{stem} has MOCK tags; run without --reuse")
 
-    webapp.app.config["DEMO"] = {"date": date.today().strftime("%b %d, %Y"), "repo": REPO, "stem": STEM}
+    # Real coach answers for the static chat panel (the public page can't call Claude live).
+    rows = [r for r in history.load_all() if r["day"].startswith("sample-")]
+    ctx = history.coach_context(rows, history.summary(rows))
+    cb = coach.make_backend(mock=args.mock)
+    canned, convo = [], []
+    for q in COACH_QUESTIONS:
+        print(f"Coach: {q}")
+        out = coach.ask(q, ctx, convo, cb)
+        print(f"  {out['seconds']}s, {out['checked']} figures, unverified={out['unverified']}")
+        canned.append({"q": q, "a": out["answer"], "checked": out["checked"], "unverified": out["unverified"],
+                       "seconds": out["seconds"]})
+        convo += [{"role": "user", "content": q}, {"role": "assistant", "content": out["answer"]}]
+
+    webapp.app.config["DEMO"] = {"date": date.today().strftime("%b %d, %Y"), "repo": REPO, "stem": STEM, "coach": canned}
     try:
         for url, fname in PAGES.items():
             r = client.get(url)
