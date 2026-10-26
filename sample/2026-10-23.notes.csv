@@ -1,0 +1,8 @@
+id,entry_time,side,root,qty,entry_price,exit_price,pnl,killzone,risk_usd,note,source_csv
+1,2026-10-23 03:12:40,short,MNQ,2,21482.25,21451.5,123.0,london,40,"London sweep of Asia high at 21490, waited for displacement down and shorted the FVG retest. Plan trade, stop above the high. Felt calm.",sample/tradovate_2026-10-23.csv
+2,2026-10-23 08:47:10,long,MNQ,3,21401.0,21388.25,-76.5,ny_am,36,Got in too early before the 8:30 news range low was even taken. Saw the candle ripping and FOMO'd. Stopped out.,sample/tradovate_2026-10-23.csv
+3,2026-10-23 08:55:02,long,MNQ,6,21390.5,21381.0,-114.0,ny_am,60,"Revenge trade after #2, doubled size to make it back. No real setup, just wanted green. Frustrated.",sample/tradovate_2026-10-23.csv
+4,2026-10-23 10:04:15,long,MNQ,3,21372.75,21419.25,279.0,ny_am,30,"Silver bullet window, FVG on the 1m after SSL sweep at 21365. Entered at the gap, target the 21420 BSL. Took it to target. Confident.",sample/tradovate_2026-10-23.csv
+5,2026-10-23 11:21:30,short,MNQ,2,21431.0,21437.5,-26.0,none,20,"Bored at lunch, shorted a 'top' with no setup.",sample/tradovate_2026-10-23.csv
+6,2026-10-23 13:44:00,long,MNQ,2,21418.0,21426.0,32.0,ny_pm,24,"PM session bullish OB retest at 21415. Cut it early at +4 because I was nervous after the morning, it ran another 30 pts after.",sample/tradovate_2026-10-23.csv
+7,2026-10-23 15:10:00,short,MNQ,1,21452.0,21447.25,9.5,ny_pm,,,sample/tradovate_2026-10-23.csv
