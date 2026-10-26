@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ stem }} · report{% endblock %}
+{% block body %}
+<div class="row" style="margin-bottom:4px">
+  <h1>{{ stem }}</h1>
+  {% if res.mock %}<span class="chip warn">MOCK tags (keyword stand-in, not Claude)</span>{% endif %}
+  <div class="spacer"></div>
+  <a class="btn" href="{{ url_for('day', stem=stem) }}">← Edit notes</a>
+</div>
+<p class="sub">Step 3 · Every number is from Python. The purple parts are Claude's reading of your notes, and each one passed the validator.</p>
+
+<div class="legend">
+  <span><span class="who code">CODE</span>math, killzones, <span class="chip rule" style="margin:0">rule:</span> flags</span>
+  <span><span class="who model">MODEL</span>setup, <span class="chip note" style="margin:0">note:</span> mistakes, emotion, lesson</span>
+</div>
+
+<div class="grid g5">
+  <div class="panel tile"><div class="k">Net P&amp;L <span class="who code">CODE</span></div><div class="v {{ 'pos' if total.net_pnl > 0 else 'neg' if total.net_pnl < 0 }}">{{ total.net_pnl|money }}</div></div>
+  <div class="panel tile"><div class="k">Win rate <span class="who code">CODE</span></div><div class="v">{{ '%.0f'|format(total.win_rate * 100) }}%</div></div>
+  <div class="panel tile"><div class="k">Profit factor <span class="who code">CODE</span></div><div class="v">{{ total.profit_factor if total.profit_factor is not none else '—' }}</div></div>
+  <div class="panel tile"><div class="k">Avg R <span class="who code">CODE</span></div><div class="v">{{ total.avg_r if total.avg_r is not none else '—' }}</div></div>
+  <div class="panel tile"><div class="k">Trades</div><div class="v">{{ total.trades }}</div></div>
+</div>
+
+<div class="grid g2" style="margin-top:14px">
+  <div class="panel"><h3>Equity curve <span class="who code">CODE</span></h3><canvas id="equity"></canvas></div>
+  <div class="panel"><h3>Net P&amp;L by issue <span class="who code">CODE</span> + <span class="who model">MODEL</span></h3><canvas id="issues"></canvas></div>
+  <div class="panel"><h3>Net P&amp;L by setup <span class="who model">MODEL</span> label</h3><canvas id="setups"></canvas></div>
+  <div class="panel"><h3>Net P&amp;L by emotion <span class="who model">MODEL</span> label</h3><canvas id="emotions"></canvas></div>
+</div>
+
+<h2>Trades</h2>
+<div class="panel" style="padding:0">
+  {% for r in rows %}
+  <div class="tcard">
+    <div class="head">
+      <b>#{{ r.id }}</b>
+      <span class="mono">{{ r.entry_time[11:16] }}</span>
+      <span>{{ r.side }} {{ r.qty }} {{ r.root }}</span>
+      <span class="pnl {{ 'pos' if r.pnl > 0 else 'neg' if r.pnl < 0 }}">{{ r.pnl|money }}</span>
+      <span class="hint">{{ (r.r_multiple ~ 'R') if r.r_multiple is not none else 'no risk set' }}</span>
+      <span class="chip">{{ r.killzone }}</span>
+      <div class="spacer"></div>
+      <span class="setup">{{ r.setup }}</span>
+      {% if r.confidence %}<span class="hint">conf {{ '%.1f'|format(r.confidence) }}</span>{% endif %}
+      <span class="chip {{ 'ok' if r.status in ('ok','cached') else 'warn' if r.status in ('ok_after_retry','skipped_no_note') else 'bad' }}">{{ r.status }}</span>
+    </div>
+    <div style="margin-top:8px">
+      {% for i in r.issues %}<span class="chip {{ 'rule' if i.startswith('rule:') else 'note' }}">{{ i }}</span>{% else %}<span class="chip ok">clean</span>{% endfor %}
+      {% if r.emotion and r.emotion != 'unclear' %}<span class="chip note">feeling: {{ r.emotion }}</span>{% endif %}
+      {% if r.followed_plan is sameas true %}<span class="chip note">followed plan</span>{% elif r.followed_plan is sameas false %}<span class="chip note">off plan</span>{% endif %}
+    </div>
+    {% if r.evidence %}<div class="quote">“{{ r.evidence }}”</div>{% endif %}
+    {% if r.lesson %}<div class="lesson">→ {{ r.lesson }}</div>{% endif %}
+    {% if r.status == 'skipped_no_note' %}<div class="hint" style="margin-top:6px">No note, so Claude was never called for this trade.</div>{% endif %}
+    {% if r.errors %}<div class="error" style="margin:8px 0 0">Validator rejected every answer: {{ r.errors|join('; ') }}</div>{% endif %}
+
+    {% if r.prompt %}
+    <details>
+      <summary>See exactly what Claude was sent and what came back</summary>
+      <div class="cols2">
+        <div><div class="hint">Prompt (built by <code>tj/tagger.py</code>)</div><pre>{{ r.prompt }}</pre></div>
+        <div>
+          <div class="hint">Answer after validation (<code>tj/schema.py</code>)</div>
+          <pre>{{ r.label|tojson(indent=2) }}</pre>
+          {% for c in r.calls %}
+          <div class="hint">attempt {{ c.attempt }}: {{ 'passed' if c.ok else 'rejected' }} · {{ c.seconds }}s · {{ c.model }}{% if c.cost_usd %} · ${{ '%.4f'|format(c.cost_usd) }}{% endif %}
+            {% if c.errors %}<br>{{ c.errors|join('; ') }}{% endif %}</div>
+          {% else %}
+          <div class="hint">From cache: no model call this run.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </details>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<h2>Model run</h2>
+<div class="grid g5">
+  <div class="panel tile"><div class="k">Model calls</div><div class="v">{{ n_calls }}</div></div>
+  <div class="panel tile"><div class="k">Rejected by validator</div><div class="v">{{ n_rejected }}</div></div>
+  <div class="panel tile"><div class="k">Time in model</div><div class="v">{{ secs }}s</div></div>
+  <div class="panel tile"><div class="k">API-equivalent cost</div><div class="v">${{ '%.4f'|format(cost) }}</div><div class="hint">Covered by Claude Code plan, not billed</div></div>
+  <div class="panel tile"><div class="k">Tag status</div><div style="margin-top:6px">{% for s, n in statuses.items() %}<span class="chip">{{ s }} {{ n }}</span>{% endfor %}</div></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script>
+const css = getComputedStyle(document.documentElement);
+const C = (v) => css.getPropertyValue(v).trim();
+Chart.defaults.color = C("--muted");
+Chart.defaults.borderColor = C("--line");
+Chart.defaults.font.family = css.fontFamily;
+
+const equity = {{ equity|tojson }};
+new Chart(document.getElementById("equity"), {
+  type: "line",
+  data: { labels: equity.map(p => p.label), datasets: [{ data: equity.map(p => p.y), borderColor: C("--code"),
+          backgroundColor: "transparent", tension: .25, pointRadius: 3 }] },
+  options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => "$" + v } } } }
+});
+
+function bars(id, rows) {
+  rows = [...rows].sort((a, b) => a.net - b.net);
+  new Chart(document.getElementById(id), {
+    type: "bar",
+    data: { labels: rows.map(r => r.k), datasets: [{ data: rows.map(r => r.net),
+            backgroundColor: rows.map(r => r.net >= 0 ? C("--green") : C("--red")), borderRadius: 4 }] },
+    options: { indexAxis: "y", plugins: { legend: { display: false },
+               tooltip: { callbacks: { label: (c) => { const r = rows[c.dataIndex];
+                 return `$${r.net.toFixed(2)} · ${r.n} trade${r.n > 1 ? "s" : ""} · ${Math.round(r.wr * 100)}% win`; } } } },
+               scales: { x: { ticks: { callback: v => "$" + v } } } }
+  });
+}
+bars("issues", {{ by_issue|tojson }});
+bars("setups", {{ by_setup|tojson }});
+bars("emotions", {{ by_emotion|tojson }});
+</script>
+{% endblock %}

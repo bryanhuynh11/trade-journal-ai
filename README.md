@@ -6,6 +6,23 @@ I trade MNQ/MES with ICT concepts. The numbers from my Tradovate export (P&L, wi
 
 TCSS 490, Artifact 3: *a system where a model does some of the work every time it runs.*
 
+## Run the web app (easiest way to see it)
+
+```bash
+pip install -r requirements.txt     # just Flask
+python app.py                       # → open http://127.0.0.1:5050
+```
+
+![Report](docs/report.png)
+
+1. **Days**: import a Tradovate Performance CSV, or click **Load sample day**.
+2. **Notes**: each trade shows what code computed (`CODE`: P&L, killzone, `rule:` flags). You type a note and your $ risk (`YOU`).
+3. **Save & tag with Claude**: a progress bar shows each `claude -p` call (about 6 s per trade). Tick **Mock** to skip Claude.
+4. **Report**: stat tiles, an equity curve, P&L by issue / setup / emotion, and a card for each trade with Claude's labels (`MODEL`). The labels include the exact quote from your note it used as evidence. Each card has a **"See exactly what Claude was sent and what came back"** section that shows the prompt, the validated JSON, each attempt, the time taken and the cost.
+5. **How it works**: the whole pipeline on one page, including what the validator allows.
+
+The web app is only a front end. `app.py` calls the same `tj/pipeline.py` functions as the CLI, so the model's job doesn't change. Everything stays on your machine: notes in `notes/`, uploads in `data/`, results in `out/` (all gitignored). Chart.js is bundled in `static/vendor/`, so it works offline (except the Claude call itself).
+
 ## How it runs
 
 ```
@@ -46,7 +63,7 @@ If something in the report is wrong, the `rule:` / `note:` prefix tells me who t
 ## Quick start
 
 ```bash
-# needs Python 3.10+ and Claude Code installed + logged in (`claude` on PATH). No pip installs.
+# CLI version. Needs Python 3.10+ and Claude Code installed + logged in (`claude` on PATH). No pip installs.
 python journal.py template sample/tradovate_2026-10-23.csv --out /tmp/try.notes.csv
 python journal.py run sample/2026-10-23.notes.csv          # real Claude, ~6 s per trade
 python journal.py run sample/2026-10-23.notes.csv --mock   # keyword stand-in, no Claude
@@ -64,7 +81,9 @@ These are measured on the sample day (6 notes): about 6.4 s per model call, 0 va
 
 ## Files
 
+- `app.py` + `templates/` + `static/`: local web UI (Flask)
 - `journal.py`: CLI
+- `tj/pipeline.py`: the two steps (CSV → notes file, notes → tags + report), shared by the CLI and the web app
 - `tj/tagger.py`: **the only file that calls a model**. It holds the prompt, the `claude -p` call, JSON extraction, retry, cache and the mock
 - `tj/schema.py`: the model's output contract and validator
 - `tj/parse.py`, `tj/facts.py`, `tj/rules.py`, `tj/report.py`: plain code

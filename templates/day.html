@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ stem }} · notes{% endblock %}
+{% block body %}
+<div class="row" style="margin-bottom:4px">
+  <h1>{{ stem }}</h1><div class="spacer"></div>
+  {% if tagged %}<a class="btn" href="{{ url_for('day_report', stem=stem) }}">View last report →</a>{% endif %}
+</div>
+<p class="sub">Step 2 · Write what you saw, why you took the trade, and how you felt. Plain words are fine: Claude reads this, not a parser.
+  Net for the day: <b class="{{ 'pos' if net > 0 else 'neg' if net < 0 }}">{{ net|money }}</b></p>
+
+<div class="legend">
+  <span><span class="who code">CODE</span>computed from your CSV</span>
+  <span><span class="who you">YOU</span>you type this</span>
+  <span><span class="who model">MODEL</span>Claude fills this in on the next step</span>
+</div>
+
+<div class="panel" style="padding:0" id="trades">
+  {% for r in rows %}
+  <div class="trade-edit" data-id="{{ r.id }}">
+    <div class="facts">
+      <div class="line1">#{{ r.id }} · {{ r.side }} {{ r.qty }} {{ r.root }} <span class="who code">CODE</span></div>
+      <div class="meta mono">{{ r.entry_time[11:19] }} · {{ r.entry_price }} → {{ r.exit_price }} · {{ r.hold_minutes }}m</div>
+      <div class="mono {{ 'pos' if r.pnl > 0 else 'neg' if r.pnl < 0 }}" style="font-weight:700">{{ r.pnl|money }}</div>
+      <div style="margin-top:6px">
+        <span class="chip">{{ r.killzone }}</span>
+        {% for f in r.rule_flags %}<span class="chip rule">rule:{{ f }}</span>{% endfor %}
+      </div>
+    </div>
+    <div>
+      <div class="hint" style="margin-bottom:4px">Note <span class="who you">YOU</span></div>
+      <textarea name="note" placeholder="e.g. Swept Asia high, waited for displacement, entered the FVG. Calm, followed plan.">{{ r.note }}</textarea>
+    </div>
+    <div>
+      <div class="hint" style="margin-bottom:4px">Risk $ <span class="who you">YOU</span></div>
+      <input type="number" step="0.01" min="0" name="risk" value="{{ r.risk_input }}" placeholder="stop $">
+      <div class="hint" style="margin-top:4px">Used for R-multiple.</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="panel" style="margin-top:16px">
+  <div class="row">
+    <button class="btn" id="save">Save notes</button>
+    <span class="hint" id="saved"></span>
+    <div class="spacer"></div>
+    <label class="check"><input type="checkbox" id="mock"> Mock (no Claude)</label>
+    <label class="check"><input type="checkbox" id="nocache"> Ignore cache</label>
+    <select id="model" style="width:auto"><option value="">default model</option><option>haiku</option><option>sonnet</option></select>
+    <button class="btn primary" id="tag">Save &amp; tag with Claude</button>
+  </div>
+  <div id="jobwrap" style="display:none">
+    <div class="progress"><div id="bar"></div></div>
+    <div class="hint" id="jobstatus"></div>
+    <div id="joblog"></div>
+  </div>
+  <div class="error" id="err" style="display:none; margin:12px 0 0"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const STEM = {{ stem|tojson }};
+const $ = (s) => document.querySelector(s);
+
+function collect() {
+  const trades = {};
+  document.querySelectorAll(".trade-edit").forEach(el => {
+    trades[el.dataset.id] = { note: el.querySelector("textarea").value, risk_usd: el.querySelector("input").value };
+  });
+  return { trades };
+}
+function showErr(msg) { $("#err").textContent = msg; $("#err").style.display = msg ? "block" : "none"; }
+
+async function save() {
+  showErr("");
+  const r = await fetch(`/api/day/${STEM}/notes`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(collect()) });
+  const j = await r.json();
+  if (!j.ok) { showErr(j.error); return false; }
+  $("#saved").textContent = "Saved " + new Date().toLocaleTimeString();
+  return true;
+}
+
+async function tag() {
+  $("#tag").disabled = $("#save").disabled = true;
+  if (!(await save())) { $("#tag").disabled = $("#save").disabled = false; return; }
+  const body = { mock: $("#mock").checked, no_cache: $("#nocache").checked, model: $("#model").value };
+  const r = await fetch(`/api/day/${STEM}/tag`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!j.ok) { showErr(j.error); $("#tag").disabled = $("#save").disabled = false; return; }
+  $("#jobwrap").style.display = "block";
+  poll();
+}
+
+async function poll() {
+  const j = await (await fetch(`/api/day/${STEM}/job`)).json();
+  const pct = j.total ? Math.round(100 * j.done / j.total) : 0;
+  $("#bar").style.width = pct + "%";
+  $("#jobstatus").textContent = j.finished ? "Done." : `Claude is reading trade ${j.done + 1} of ${j.total}… (~6 s each, cached trades are instant)`;
+  $("#joblog").innerHTML = j.log.map(l =>
+    `<div>#${l.id} · <b>${l.status}</b> · ${l.setup}${l.errors && l.errors.length ? " · " + l.errors.join("; ") : ""}</div>`).join("");
+  if (j.error) { showErr(j.error); $("#tag").disabled = $("#save").disabled = false; return; }
+  if (j.finished) { location.href = `/day/${STEM}/report`; return; }
+  setTimeout(poll, 800);
+}
+
+$("#save").onclick = save;
+$("#tag").onclick = tag;
+</script>
+{% endblock %}

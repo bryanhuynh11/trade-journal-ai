@@ -67,7 +67,7 @@ def read_tradovate(path: str | Path, tz: str = rules.EXPORT_TZ) -> list[Trade]:
         reader = csv.DictReader(f)
         missing = [c for c in REQUIRED if c not in (reader.fieldnames or [])]
         if missing:
-            raise ValueError(f"{path}: not a Tradovate Performance export, missing columns {missing}")
+            raise ValueError(f"{Path(path).name}: not a Tradovate Performance export, missing columns {missing}")
         raw = list(reader)
 
     trades = []

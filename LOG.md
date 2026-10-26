@@ -65,6 +65,24 @@ First mock run: my silver bullet trade at 10:04 came out as `killzone: none` and
 - validator: hallucinated evidence rejected, code-owned flag rejected, bad enums/ranges, fenced JSON
 - tagger: **bad answer → retry with errors → ok**; always-bad → `UNTAGGED`; empty note → 0 calls; cache hit → 0 calls
 
+## 2026-10-25: Change: local web UI
+
+**Plan.** Using the CLI meant editing a CSV in a spreadsheet and reading a Markdown file, which made it hard to see the whole flow. I wanted a local web app that makes the model/code split visible.
+
+**Decisions.**
+- Flask, local only (127.0.0.1:5050; 5000 clashes with macOS AirPlay).
+- I moved the pipeline steps out of `journal.py` into `tj/pipeline.py`, so the CLI and the web app call the *same* code. The UI adds no new model logic.
+- Every field on screen has a badge: `CODE` (computed), `YOU` (typed), `MODEL` (Claude). `rule:` chips are blue (code) and `note:` chips are purple (model).
+- Tagging runs in a background thread. The page polls `/api/day/<day>/job` for a progress bar, because 6 trades × ~6 s is too long for one blocking request.
+- Each trade card on the report can expand to show the exact prompt sent, the validated JSON, and each attempt's time, cost and validator errors. That's the debugging view.
+- Chart.js is bundled locally instead of loaded from a CDN, so the page works offline.
+
+**Bugs found while building.**
+- A bad "Risk $" value (like `abc`) was saved to the notes file *before* validation, which then broke the day page. Now `save_notes()` validates first and nothing invalid is written.
+- The upload error message showed my full disk path. It now shows just the file name.
+
+**Verified.** I clicked through import → notes → **Save & tag with Claude** → report with Playwright, using real `claude -p`: 6 calls, 0 rejections, 38.4 s. The labels matched the CLI runs (trade 3 came back `other` instead of `unclear` this time; both are reasonable for "no real setup"). There were no browser console errors, and the layout works at phone width. All 16 tests still pass.
+
 ---
 
 ## Next / ideas

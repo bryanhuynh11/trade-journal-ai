@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Your trading days</h1>
+<p class="sub">Import a Tradovate export, write a quick note for each trade, and let Claude tag the notes. Python handles all the math.</p>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<div class="grid g2" style="margin-bottom:24px">
+  <form class="panel" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+    <h3>1 · Import a day</h3>
+    <p class="hint" style="margin-top:0">Tradovate → Account Reports → <b>Performance</b> → export CSV. One file per trading day works best.</p>
+    <div class="row"><input type="file" name="csv" accept=".csv" required><button class="btn">Import</button></div>
+  </form>
+  <form class="panel" action="{{ url_for('load_sample') }}" method="post">
+    <h3>Just exploring?</h3>
+    <p class="hint" style="margin-top:0">Load a made-up MNQ day (7 trades, notes already written) so you can see the whole flow in one click.</p>
+    <button class="btn">Load sample day</button>
+  </form>
+</div>
+
+<div class="panel" style="padding:0">
+  {% for d in days %}
+  <div class="day">
+    <div>
+      <div class="name">{{ d.stem }}</div>
+      <div class="hint">{{ d.trades }} trades · {{ d.with_notes }} with notes</div>
+    </div>
+    <div class="mono {{ 'pos' if d.net > 0 else 'neg' if d.net < 0 }}">{{ d.net|money }}</div>
+    <div class="spacer"></div>
+    {% if d.tagged %}<span class="chip {{ 'warn' if d.mock else 'ok' }}">{{ 'tagged (mock)' if d.mock else 'tagged' }}</span>{% else %}<span class="chip">not tagged</span>{% endif %}
+    <a class="btn" href="{{ url_for('day', stem=d.stem) }}">Notes</a>
+    {% if d.tagged %}<a class="btn" href="{{ url_for('day_report', stem=d.stem) }}">Report</a>{% endif %}
+  </div>
+  {% else %}
+  <div class="day hint">No days yet. Import a CSV or load the sample.</div>
+  {% endfor %}
+</div>
+{% endblock %}

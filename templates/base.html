@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Trade Journal AI{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="top"><div class="inner">
+    <a class="brand" href="{{ url_for('home') }}">Trade Journal <span>AI</span></a>
+    <nav>
+      <a href="{{ url_for('home') }}" class="{{ 'on' if request.endpoint == 'home' }}">Days</a>
+      <a href="{{ url_for('how') }}" class="{{ 'on' if request.endpoint == 'how' }}">How it works</a>
+    </nav>
+  </div></header>
+  <main>
+    {% block body %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
