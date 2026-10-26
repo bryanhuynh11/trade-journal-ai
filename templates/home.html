@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block body %}
 <h1>Your trading days</h1>
-<p class="sub">Import a Tradovate export, write a quick note for each trade, and let Claude tag the notes. Python handles all the math.</p>
+<p class="sub">Import a TradeSea export, write a quick note for each trade, and let Claude tag the notes. Python handles all the math.</p>
 
 {% if error %}<div class="error">{{ error }}</div>{% endif %}
 
 <div class="grid g2" style="margin-bottom:24px">
   <form class="panel" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
     <h3>1 · Import a day</h3>
-    <p class="hint" style="margin-top:0">Tradovate → Account Reports → <b>Performance</b> → export CSV. One file per trading day works best.</p>
+    <p class="hint" style="margin-top:0"><b>TradeSea</b> (Vest Markets): Orders / Trade History → export CSV. Fills are paired into trades automatically. A Tradovate <i>Performance</i> CSV works too. One file per trading day works best.</p>
     <div class="row"><input type="file" name="csv" accept=".csv" required><button class="btn">Import</button></div>
   </form>
   <form class="panel" action="{{ url_for('load_sample') }}" method="post">

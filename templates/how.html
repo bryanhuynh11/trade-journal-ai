@@ -6,7 +6,7 @@
 
 <div class="flow">
   <div class="step"><div class="n">1</div><div><b>Import CSV</b> <span class="who code">CODE</span>
-    <p><code>tj/parse.py</code> reads the Tradovate Performance export, sorts trades by entry time, works out long/short, and parses <code>$(22.50)</code> as −22.50.</p></div></div>
+    <p><code>tj/parse.py</code> detects the file type. A <b>TradeSea</b> export lists every fill, so <code>tj/parse_fills.py</code> skips cancelled orders, pairs buys and sells into flat-to-flat trades (FIFO, scale-ins and flips handled), and computes P&amp;L as points × $/point × contracts − commission. It converts Pacific times to New York for killzones. A Tradovate Performance export is already one row per trade.</p></div></div>
   <div class="arrow">↓</div>
   <div class="step"><div class="n">2</div><div><b>Facts &amp; rule checks</b> <span class="who code">CODE</span>
     <p><code>tj/facts.py</code> computes the killzone, hold time and R-multiple, and checks your limits in <code>tj/rules.py</code>: outside killzone, oversized, too many trades, past the daily loss limit. These become <span class="chip rule">rule:</span> flags. They're things the numbers prove, so the model never decides them.</p></div></div>

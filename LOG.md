@@ -83,6 +83,30 @@ First mock run: my silver bullet trade at 10:04 came out as `killzone: none` and
 
 **Verified.** I clicked through import → notes → **Save & tag with Claude** → report with Playwright, using real `claude -p`: 6 calls, 0 rejections, 38.4 s. The labels matched the CLI runs (trade 3 came back `other` instead of `unclear` this time; both are reasonable for "no real setup"). There were no browser console errors, and the layout works at phone width. All 16 tests still pass.
 
+## 2026-10-25: Change: TradeSea support (I trade Vest Markets on TradeSea, not Tradovate)
+
+**Problem.** The parser only read Tradovate's Performance report, which already has one row per round-trip trade with P&L. TradeSea exports **orders/fills** instead (Time, Symbol, Qty, Side, Avg Price, Commission, Status), with no P&L and no notion of a "trade".
+
+**Decision.** This is still 100% a code job. Pairing fills and computing P&L is exact arithmetic, so it goes in a new `tj/parse_fills.py`, not in the model. The model's job and the validator don't change at all.
+
+**What it does.**
+- `parse.read_trades()` looks at the headers and picks Tradovate or TradeSea. Header names are matched loosely ("Avg Price" / "Fill Price", "Side" / "B/S", "Commission" / "Fees"...) because I haven't seen a real export yet.
+- It skips orders that aren't `Filled` (cancelled stops etc.).
+- It pairs fills per contract into flat → position → flat round trips, FIFO against entry lots. A fill that flips long→short closes one trade and opens the next. A position still open at the end of the file is left out.
+- P&L = points × `POINT_VALUE` (MNQ $2, MES $5, NQ $20, ES $50, ...) × contracts − commission.
+- Fill times are read as Pacific (`FILLS_TZ`) and converted to New York for killzones.
+- New sample `sample/tradesea_2026-10-23.csv`: the same 7-trade day as fills in Pacific time, with a two-part scale-out on trade 4, a cancelled stop, and $0.37/contract/side commission. The "Load sample day" button in the UI now uses it.
+
+**Tests.** 9 new (25 total):
+- the TradeSea sample gives the same 7 trades and entry times as the Tradovate one
+- scale-out stays one trade, and scale-in uses FIFO average entry
+- a flip becomes two trades, and a still-open position is skipped
+- cancelled orders are ignored
+- header aliases, contract roots (`/MNQZ26`, `MES 12-26`, `ESZ6.CME`)
+- unknown files are rejected with a clear message
+
+**Still unverified.** The exact TradeSea column names and time format come from a third-party import guide (TradesViz), not from my own export. Next step: export one real day from TradeSea and run it through.
+
 ---
 
 ## Next / ideas

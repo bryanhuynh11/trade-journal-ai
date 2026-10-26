@@ -18,7 +18,7 @@ from tj.tagger import build_prompt
 
 ROOT = pipeline.ROOT
 DATA_DIR = ROOT / "data"           # uploaded Tradovate CSVs (gitignored)
-SAMPLE_CSV = ROOT / "sample" / "tradovate_2026-10-23.csv"
+SAMPLE_CSV = ROOT / "sample" / "tradesea_2026-10-23.csv"
 SAMPLE_NOTES = ROOT / "sample" / "2026-10-23.notes.csv"
 
 app = Flask(__name__)
@@ -78,7 +78,7 @@ def how():
 def upload():
     f = request.files.get("csv")
     if not f or not f.filename:
-        return redirect(url_for("home", error="Choose a Tradovate Performance CSV first."))
+        return redirect(url_for("home", error="Choose a TradeSea (or Tradovate) CSV export first."))
     name = secure_filename(f.filename)
     if not name.lower().endswith(".csv"):
         return redirect(url_for("home", error="That isn't a .csv file."))

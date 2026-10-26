@@ -2,7 +2,7 @@
 
 A futures trade journal where **Claude reads my trade notes and labels them**, and plain Python does everything else.
 
-I trade MNQ/MES with ICT concepts. The numbers from my Tradovate export (P&L, win rate) are easy to get. The part that actually matters is what I wrote right after each trade ("FOMO'd", "revenge trade", "cut it early because I was nervous"), and that part was never in my stats. This pipeline turns those notes into structured tags so I can see, for example, that my `note:fomo_entry` trades lose money and my `clean` trades don't.
+I trade MNQ/MES with ICT concepts on Vest Markets, using the TradeSea platform. The numbers from my TradeSea export (P&L, win rate) are easy to get. The part that actually matters is what I wrote right after each trade ("FOMO'd", "revenge trade", "cut it early because I was nervous"), and that part was never in my stats. This pipeline turns those notes into structured tags so I can see, for example, that my `note:fomo_entry` trades lose money and my `clean` trades don't.
 
 TCSS 490, Artifact 3: *a system where a model does some of the work every time it runs.*
 
@@ -15,7 +15,7 @@ python app.py                       # → open http://127.0.0.1:5050
 
 ![Report](docs/report.png)
 
-1. **Days**: import a Tradovate Performance CSV, or click **Load sample day**.
+1. **Days**: import a TradeSea orders/fills CSV (or a Tradovate Performance CSV), or click **Load sample day**.
 2. **Notes**: each trade shows what code computed (`CODE`: P&L, killzone, `rule:` flags). You type a note and your $ risk (`YOU`).
 3. **Save & tag with Claude**: a progress bar shows each `claude -p` call (about 6 s per trade). Tick **Mock** to skip Claude.
 4. **Report**: stat tiles, an equity curve, P&L by issue / setup / emotion, and a card for each trade with Claude's labels (`MODEL`). The labels include the exact quote from your note it used as evidence. Each card has a **"See exactly what Claude was sent and what came back"** section that shows the prompt, the validated JSON, each attempt, the time taken and the cost.
@@ -26,7 +26,7 @@ The web app is only a front end. `app.py` calls the same `tj/pipeline.py` functi
 ## How it runs
 
 ```
-Tradovate Performance CSV
+TradeSea fills CSV  (or Tradovate Performance CSV)
         │
         ▼
 python journal.py template <csv>     ← code: parse, sort, number trades, killzones
@@ -49,7 +49,7 @@ python journal.py run <notes.csv>
 
 | | Who | Why |
 |---|---|---|
-| Parsing the CSV, sorting, long/short, P&L | **Code** (`tj/parse.py`) | Exact arithmetic. A model could get it wrong and I'd never notice. |
+| Parsing the CSV, pairing fills into trades, long/short, P&L after commission | **Code** (`tj/parse.py`, `tj/parse_fills.py`) | Exact arithmetic. A model could get it wrong and I'd never notice. |
 | Killzone, R-multiple, hold time | **Code** (`tj/facts.py`) | It's just the clock and division. |
 | Rule breaks: outside killzone, oversized, over max trades/day, past daily loss limit | **Code** (`tj/facts.py`, limits in `tj/rules.py`) | These can be proven from the numbers, so the model isn't allowed to tag them (they aren't in its allowed list). |
 | **Setup** (sweep reversal, FVG, silver bullet, OB…) | **Model** | Only my free-text note says what I saw. |
@@ -64,13 +64,19 @@ If something in the report is wrong, the `rule:` / `note:` prefix tells me who t
 
 ```bash
 # CLI version. Needs Python 3.10+ and Claude Code installed + logged in (`claude` on PATH). No pip installs.
-python journal.py template sample/tradovate_2026-10-23.csv --out /tmp/try.notes.csv
+python journal.py template sample/tradesea_2026-10-23.csv --out /tmp/try.notes.csv
 python journal.py run sample/2026-10-23.notes.csv          # real Claude, ~6 s per trade
 python journal.py run sample/2026-10-23.notes.csv --mock   # keyword stand-in, no Claude
-python -m unittest discover tests                           # 16 tests, no Claude calls
+python -m unittest discover tests                           # 25 tests, no Claude calls
 ```
 
-For your own trades: Tradovate → Account Reports → Performance → export CSV, then `template`, fill in the notes, then `run`.
+For your own trades: in TradeSea, open Orders / Trade History and export a CSV (it needs Time, Symbol, Qty, Side, Avg Price; Commission and Status are used if present). Then run `template`, fill in the notes, then `run`. A Tradovate Performance CSV also works; the file type is detected from its headers.
+
+**TradeSea exports list fills, not trades.** `tj/parse_fills.py` does the following:
+- skips anything not `Filled`
+- pairs fills into flat-to-flat round trips per contract (FIFO; handles scale-ins, scale-outs and position flips)
+- computes P&L as points × $/point × contracts − commission (`POINT_VALUE` in `tj/rules.py`)
+- converts fill times from Pacific (`FILLS_TZ`) to New York for killzones
 Edit `tj/rules.py` to set your own killzones and risk limits.
 
 Example output: [`sample/example-report.md`](sample/example-report.md)

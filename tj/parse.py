@@ -91,3 +91,18 @@ def read_tradovate(path: str | Path, tz: str = rules.EXPORT_TZ) -> list[Trade]:
     for i, t in enumerate(trades, 1):
         t.id = i
     return trades
+
+
+def read_trades(path, tz: str | None = None) -> list[Trade]:
+    """Detect the export type from its headers and parse it.
+    - Tradovate 'Performance' report: already one row per round-trip trade.
+    - TradeSea (Vest Markets etc.) orders/fills export: one row per fill, paired into trades by code."""
+    from . import parse_fills
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        headers = next(csv.reader(f), [])
+    if all(c in headers for c in REQUIRED):
+        return read_tradovate(path, tz or rules.EXPORT_TZ)
+    if parse_fills.looks_like_fills(headers):
+        return parse_fills.read_tradesea(path, tz)
+    raise ValueError(f"{Path(path).name}: not a format I recognise. Expected a TradeSea orders/fills export "
+                     f"(Time, Symbol, Qty, Side, Avg Price...) or a Tradovate Performance export. Headers: {headers}")

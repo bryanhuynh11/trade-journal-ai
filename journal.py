@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Trade journal pipeline (command-line version; `python app.py` is the web version).
 
-  1. python journal.py template <tradovate.csv>       -> notes/<name>.notes.csv  (you fill in note + risk_usd)
+  1. python journal.py template <export.csv>         -> notes/<name>.notes.csv  (you fill in note + risk_usd)
+     (TradeSea fills export or Tradovate Performance export; detected automatically)
   2. python journal.py run notes/<name>.notes.csv     -> out/<name>.report.md + out/<name>.tagged.json
 
 `run` calls `claude -p` once per trade that has a note (cached after the first time).
@@ -31,10 +32,10 @@ def cmd_run(args):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--tz", default="America/New_York", help="timezone of the export timestamps")
+    p.add_argument("--tz", default=None, help="timezone the export times are in (default: New York for Tradovate, Pacific for TradeSea; see tj/rules.py)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    t = sub.add_parser("template", help="make a notes file from a Tradovate Performance CSV")
+    t = sub.add_parser("template", help="make a notes file from a TradeSea fills CSV or Tradovate Performance CSV")
     t.add_argument("csv")
     t.add_argument("--out")
     t.add_argument("--force", action="store_true")

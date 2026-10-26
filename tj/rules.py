@@ -18,3 +18,14 @@ KILLZONES = {
 MAX_CONTRACTS = {"MNQ": 5, "MES": 5, "NQ": 1, "ES": 1}
 MAX_TRADES_PER_DAY = 4
 DAILY_LOSS_LIMIT_USD = 300.0
+
+# Dollars per 1.00 point, per contract. Used to compute P&L from fill exports (TradeSea).
+POINT_VALUE = {
+    "MNQ": 2.0, "NQ": 20.0, "MES": 5.0, "ES": 50.0, "MYM": 0.5, "YM": 5.0,
+    "M2K": 5.0, "RTY": 50.0, "MGC": 10.0, "GC": 100.0, "MCL": 100.0, "CL": 1000.0,
+}
+
+# Timezone the TradeSea fill times are written in. TradeSea shows times in your computer's
+# local time zone, so for Seattle that's Pacific. Change it if your export says otherwise.
+# (Times get converted to New York time before killzones are checked.)
+FILLS_TZ = "America/Los_Angeles"

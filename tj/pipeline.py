@@ -35,8 +35,8 @@ def _resolve(src: str) -> Path:
 
 # ---------- step 1: CSV -> notes file ----------
 
-def make_template(csv_path, out_path=None, force=False, tz=parse.rules.EXPORT_TZ) -> tuple[Path, int]:
-    trades = parse.read_tradovate(csv_path, tz)
+def make_template(csv_path, out_path=None, force=False, tz=None) -> tuple[Path, int]:
+    trades = parse.read_trades(csv_path, tz)
     fs = facts.build_facts(trades)
     out = Path(out_path or NOTES_DIR / f"{Path(csv_path).stem}.notes.csv")
     if out.exists() and not force:
@@ -61,14 +61,14 @@ def read_notes(notes_path) -> list[dict]:
     return rows
 
 
-def load_day(notes_path, csv_path=None, tz=parse.rules.EXPORT_TZ) -> tuple[list[dict], dict[int, dict]]:
+def load_day(notes_path, csv_path=None, tz=None) -> tuple[list[dict], dict[int, dict]]:
     """Returns (facts per trade, note rows by id). Every number is re-derived from the original CSV --
     numbers typed into the notes file are never trusted."""
     note_rows = read_notes(notes_path)
     src = _resolve(csv_path or note_rows[0].get("source_csv", ""))
     if not src.is_file():
         raise PipelineError(f"can't find the Tradovate CSV ({src})")
-    trades = parse.read_tradovate(src, tz)
+    trades = parse.read_trades(src, tz)
     by_id = {int(r["id"]): r for r in note_rows}
     if set(by_id) != {t.id for t in trades}:
         raise PipelineError("notes file trade ids don't match the CSV; regenerate the template")
