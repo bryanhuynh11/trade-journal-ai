@@ -107,6 +107,22 @@ First mock run: my silver bullet trade at 10:04 came out as `killzone: none` and
 
 **Still unverified.** The exact TradeSea column names and time format come from a third-party import guide (TradesViz), not from my own export. Next step: export one real day from TradeSea and run it through.
 
+## 2026-10-25: Change: public demo for my professor
+
+**Goal.** A link my professor can open any time.
+
+**Options considered.**
+- *Tunnel from my Mac* (ngrok/cloudflared). It only works while my laptop is on and the app is running, and anyone with the link could run Claude on my login.
+- *Host the Flask app* with mock tagging. It's always up, but it fakes the one part the assignment is about.
+- **Static snapshot of a real run** (chosen). It's always up, free, can't be misused, and shows real Claude output.
+
+**What I built.**
+- `build_demo.py` tags the sample day with real `claude -p` (or `--reuse` the last result), then renders Overview / How it works / Notes / Report through Flask's test client with a `DEMO` flag. It rewrites links to relative `.html` files, copies `static/`, and writes everything to `docs/` with `.nojekyll`.
+- Demo mode: a banner saying it's a read-only snapshot with a link to the repo, read-only note fields, the Tag button replaced by "See the result →", and an Overview page written for someone seeing it for the first time.
+- Screenshots moved to `docs/img/`. Added the macOS double-click launcher to the repo.
+
+**Verified.** I served `docs/` locally and loaded every page in Chromium: all links are relative, there are 0 failed requests and 0 JS errors, and the charts render. On this real run trade 2 came back `unclear` (it was `breakout_chase` before). That's model variance on a vague-ish note, and something to measure in the eval.
+
 ---
 
 ## Next / ideas

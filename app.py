@@ -23,6 +23,12 @@ SAMPLE_NOTES = ROOT / "sample" / "2026-10-23.notes.csv"
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
+app.config["DEMO"] = None          # set by build_demo.py: {"date": ..., "repo": ...} -> read-only snapshot
+
+
+@app.context_processor
+def inject_demo():
+    return {"demo": app.config["DEMO"]}
 
 JOBS: dict[str, dict] = {}         # stem -> progress of a running tag job
 JOBS_LOCK = threading.Lock()
@@ -65,7 +71,10 @@ def money_filter(v):
 
 @app.get("/")
 def home():
-    return render_template("home.html", days=list_days(), error=request.args.get("error"))
+    days = list_days()
+    if app.config["DEMO"]:
+        days = [d for d in days if d["stem"] == app.config["DEMO"]["stem"]]
+    return render_template("home.html", days=days, error=request.args.get("error"))
 
 
 @app.get("/how")

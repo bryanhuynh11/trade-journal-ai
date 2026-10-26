@@ -121,3 +121,8 @@ details pre { background: var(--bg); border: 1px solid var(--line); border-radiu
 .step p { margin: 4px 0 0; color: var(--muted); }
 .arrow { text-align: center; color: var(--faint); }
 canvas { max-height: 260px; }
+
+.demo-banner { background: color-mix(in srgb, var(--model) 10%, transparent); border: 1px solid color-mix(in srgb, var(--model) 40%, transparent);
+               border-radius: var(--radius); padding: 10px 14px; margin-bottom: 20px; font-size: 13px; color: var(--text); }
+a.panel { color: var(--text); display: block; }
+a.panel:hover { border-color: var(--model); text-decoration: none; }

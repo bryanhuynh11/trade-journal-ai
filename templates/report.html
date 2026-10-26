@@ -5,7 +5,7 @@
   <h1>{{ stem }}</h1>
   {% if res.mock %}<span class="chip warn">MOCK tags (keyword stand-in, not Claude)</span>{% endif %}
   <div class="spacer"></div>
-  <a class="btn" href="{{ url_for('day', stem=stem) }}">← Edit notes</a>
+  <a class="btn" href="{{ url_for('day', stem=stem) }}">← {{ 'Notes' if demo else 'Edit notes' }}</a>
 </div>
 <p class="sub">Step 3 · Every number is from Python. The purple parts are Claude's reading of your notes, and each one passed the validator.</p>
 

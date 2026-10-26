@@ -4,3 +4,4 @@ out/
 notes/
 .DS_Store
 data/
+.venv/

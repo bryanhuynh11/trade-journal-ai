@@ -1,5 +1,20 @@
 {% extends "base.html" %}
 {% block body %}
+{% if demo %}
+<h1>Trade Journal AI</h1>
+<p class="sub">I write a quick note after every futures trade. This tool has <b>Claude read each note and label it</b> (setup, mistakes, emotion, a lesson, and an exact quote as evidence), while <b>plain Python does every number</b>: pairing fills into trades, P&amp;L, killzones and rule checks. TCSS 490 · Artifact 3 · Bryan Huynh.</p>
+<div class="legend">
+  <span><span class="who code">CODE</span>computed by Python</span>
+  <span><span class="who you">YOU</span>typed by me</span>
+  <span><span class="who model">MODEL</span>Claude's label, checked by the validator</span>
+</div>
+<div class="grid g3" style="margin-bottom:24px">
+  <a class="panel" href="{{ url_for('how') }}"><h3>1 · How it works →</h3><p class="hint" style="margin:0">The six-step pipeline and what the model is and isn't allowed to decide.</p></a>
+  <a class="panel" href="{{ url_for('day', stem=days[0].stem) }}"><h3>2 · Notes →</h3><p class="hint" style="margin:0">A sample day of 7 MNQ trades as imported from a TradeSea export, with my notes.</p></a>
+  <a class="panel" href="{{ url_for('day_report', stem=days[0].stem) }}"><h3>3 · Report →</h3><p class="hint" style="margin:0">Claude's labels, the stats, and the exact prompt and answer for every trade.</p></a>
+</div>
+<p class="hint">The sample trades are made up for the demo. They're not real account history.</p>
+{% else %}
 <h1>Your trading days</h1>
 <p class="sub">Import a TradeSea export, write a quick note for each trade, and let Claude tag the notes. Python handles all the math.</p>
 
@@ -35,4 +50,5 @@
   <div class="day hint">No days yet. Import a CSV or load the sample.</div>
   {% endfor %}
 </div>
+{% endif %}
 {% endblock %}

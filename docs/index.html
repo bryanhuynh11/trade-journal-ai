@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trade Journal AI</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <header class="top"><div class="inner">
+    <a class="brand" href="index.html">Trade Journal <span>AI</span></a>
+    <nav>
+      <a href="index.html" class="on">Overview</a>
+      <a href="how.html" class="">How it works</a>
+    </nav>
+  </div></header>
+  <main>
+    
+    <div class="demo-banner">
+      <b>Read-only snapshot</b> of a real run on Oct 25, 2026: every label on these pages came from <code>claude -p</code> and passed the validator.
+      The live app runs locally (it uses my Claude Code login, so it can't be public).
+      <a href="https://github.com/bryanhuynh11/trade-journal-ai">Source code &amp; build log →</a>
+    </div>
+    
+    
+
+<h1>Trade Journal AI</h1>
+<p class="sub">I write a quick note after every futures trade. This tool has <b>Claude read each note and label it</b> (setup, mistakes, emotion, a lesson, and an exact quote as evidence), while <b>plain Python does every number</b>: pairing fills into trades, P&amp;L, killzones and rule checks. TCSS 490 · Artifact 3 · Bryan Huynh.</p>
+<div class="legend">
+  <span><span class="who code">CODE</span>computed by Python</span>
+  <span><span class="who you">YOU</span>typed by me</span>
+  <span><span class="who model">MODEL</span>Claude's label, checked by the validator</span>
+</div>
+<div class="grid g3" style="margin-bottom:24px">
+  <a class="panel" href="how.html"><h3>1 · How it works →</h3><p class="hint" style="margin:0">The six-step pipeline and what the model is and isn't allowed to decide.</p></a>
+  <a class="panel" href="notes.html"><h3>2 · Notes →</h3><p class="hint" style="margin:0">A sample day of 7 MNQ trades as imported from a TradeSea export, with my notes.</p></a>
+  <a class="panel" href="report.html"><h3>3 · Report →</h3><p class="hint" style="margin:0">Claude's labels, the stats, and the exact prompt and answer for every trade.</p></a>
+</div>
+<p class="hint">The sample trades are made up for the demo. They're not real account history.</p>
+
+
+  </main>
+  
+</body>
+</html>

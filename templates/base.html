@@ -10,11 +10,18 @@
   <header class="top"><div class="inner">
     <a class="brand" href="{{ url_for('home') }}">Trade Journal <span>AI</span></a>
     <nav>
-      <a href="{{ url_for('home') }}" class="{{ 'on' if request.endpoint == 'home' }}">Days</a>
+      <a href="{{ url_for('home') }}" class="{{ 'on' if request.endpoint == 'home' }}">{{ 'Overview' if demo else 'Days' }}</a>
       <a href="{{ url_for('how') }}" class="{{ 'on' if request.endpoint == 'how' }}">How it works</a>
     </nav>
   </div></header>
   <main>
+    {% if demo %}
+    <div class="demo-banner">
+      <b>Read-only snapshot</b> of a real run on {{ demo.date }}: every label on these pages came from <code>claude -p</code> and passed the validator.
+      The live app runs locally (it uses my Claude Code login, so it can't be public).
+      <a href="{{ demo.repo }}">Source code &amp; build log →</a>
+    </div>
+    {% endif %}
     {% block body %}{% endblock %}
   </main>
   {% block scripts %}{% endblock %}

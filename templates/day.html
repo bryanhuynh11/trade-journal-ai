@@ -28,17 +28,23 @@
     </div>
     <div>
       <div class="hint" style="margin-bottom:4px">Note <span class="who you">YOU</span></div>
-      <textarea name="note" placeholder="e.g. Swept Asia high, waited for displacement, entered the FVG. Calm, followed plan.">{{ r.note }}</textarea>
+      <textarea name="note" {{ 'readonly' if demo }} placeholder="{{ '(no note written: Claude is skipped for this trade)' if demo else 'e.g. Swept Asia high, waited for displacement, entered the FVG. Calm, followed plan.' }}">{{ r.note }}</textarea>
     </div>
     <div>
       <div class="hint" style="margin-bottom:4px">Risk $ <span class="who you">YOU</span></div>
-      <input type="number" step="0.01" min="0" name="risk" value="{{ r.risk_input }}" placeholder="stop $">
+      <input type="number" step="0.01" min="0" name="risk" {{ 'readonly' if demo }} value="{{ r.risk_input }}" placeholder="{{ '—' if demo else 'stop $' }}">
       <div class="hint" style="margin-top:4px">Used for R-multiple.</div>
     </div>
   </div>
   {% endfor %}
 </div>
 
+{% if demo %}
+<div class="panel" style="margin-top:16px"><div class="row">
+  <span class="hint">In the live app this is where you click <b>Save &amp; tag with Claude</b>: a progress bar fills as each note goes to <code>claude -p</code> (~6 s per trade).</span>
+  <div class="spacer"></div><a class="btn primary" href="{{ url_for('day_report', stem=stem) }}">See the result →</a>
+</div></div>
+{% else %}
 <div class="panel" style="margin-top:16px">
   <div class="row">
     <button class="btn" id="save">Save notes</button>
@@ -56,9 +62,10 @@
   </div>
   <div class="error" id="err" style="display:none; margin:12px 0 0"></div>
 </div>
+{% endif %}
 {% endblock %}
 
-{% block scripts %}
+{% block scripts %}{% if not demo %}
 <script>
 const STEM = {{ stem|tojson }};
 const $ = (s) => document.querySelector(s);
@@ -106,5 +113,5 @@ async function poll() {
 
 $("#save").onclick = save;
 $("#tag").onclick = tag;
-</script>
+</script>{% endif %}
 {% endblock %}

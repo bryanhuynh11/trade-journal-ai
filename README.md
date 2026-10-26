@@ -1,5 +1,7 @@
 # trade-journal-ai
 
+**Live demo (read-only snapshot of a real Claude run): https://bryanhuynh11.github.io/trade-journal-ai/**
+
 A futures trade journal where **Claude reads my trade notes and labels them**, and plain Python does everything else.
 
 I trade MNQ/MES with ICT concepts on Vest Markets, using the TradeSea platform. The numbers from my TradeSea export (P&L, win rate) are easy to get. The part that actually matters is what I wrote right after each trade ("FOMO'd", "revenge trade", "cut it early because I was nervous"), and that part was never in my stats. This pipeline turns those notes into structured tags so I can see, for example, that my `note:fomo_entry` trades lose money and my `clean` trades don't.
@@ -8,12 +10,14 @@ TCSS 490, Artifact 3: *a system where a model does some of the work every time i
 
 ## Run the web app (easiest way to see it)
 
+On a Mac, double-click **`Start Trade Journal.command`**. The first run sets up a virtual environment, then the app opens at http://127.0.0.1:5050. Or run it by hand:
+
 ```bash
 pip install -r requirements.txt     # just Flask
 python app.py                       # → open http://127.0.0.1:5050
 ```
 
-![Report](docs/report.png)
+![Report](docs/img/report.png)
 
 1. **Days**: import a TradeSea orders/fills CSV (or a Tradovate Performance CSV), or click **Load sample day**.
 2. **Notes**: each trade shows what code computed (`CODE`: P&L, killzone, `rule:` flags). You type a note and your $ risk (`YOU`).
@@ -85,10 +89,21 @@ Example output: [`sample/example-report.md`](sample/example-report.md)
 
 These are measured on the sample day (6 notes): about 6.4 s per model call, 0 validator rejections, and an API-equivalent cost of about $0.003 per trade. Claude Code reports that figure, but the plan covers it. A cached re-run makes no model calls and takes 0.08 s. Labels stayed the same across two runs. `confidence` moved by ±0.1. See [`LOG.md`](LOG.md).
 
+## Public demo (`docs/`)
+
+The live app can't be public. It calls `claude -p` on my own Claude Code login, so a public server would let anyone run it on my account. Instead, `python build_demo.py` does three things:
+1. tags the sample day with real `claude -p`
+2. renders the four pages read-only (Overview, How it works, Notes, Report) as plain HTML
+3. writes them into `docs/`
+
+GitHub Pages serves that folder: no server, no Claude calls, always up. Re-run `build_demo.py` and push to refresh it.
+
 ## Files
 
 - `app.py` + `templates/` + `static/`: local web UI (Flask)
 - `journal.py`: CLI
+- `build_demo.py` → `docs/`: the public read-only demo (GitHub Pages)
+- `Start Trade Journal.command`: double-click launcher for macOS
 - `tj/pipeline.py`: the two steps (CSV → notes file, notes → tags + report), shared by the CLI and the web app
 - `tj/tagger.py`: **the only file that calls a model**. It holds the prompt, the `claude -p` call, JSON extraction, retry, cache and the mock
 - `tj/schema.py`: the model's output contract and validator

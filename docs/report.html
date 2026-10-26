@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sample-2026-10-23 · report</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <header class="top"><div class="inner">
+    <a class="brand" href="index.html">Trade Journal <span>AI</span></a>
+    <nav>
+      <a href="index.html" class="">Overview</a>
+      <a href="how.html" class="">How it works</a>
+    </nav>
+  </div></header>
+  <main>
+    
+    <div class="demo-banner">
+      <b>Read-only snapshot</b> of a real run on Oct 25, 2026: every label on these pages came from <code>claude -p</code> and passed the validator.
+      The live app runs locally (it uses my Claude Code login, so it can't be public).
+      <a href="https://github.com/bryanhuynh11/trade-journal-ai">Source code &amp; build log →</a>
+    </div>
+    
+    
+<div class="row" style="margin-bottom:4px">
+  <h1>sample-2026-10-23</h1>
+  
+  <div class="spacer"></div>
+  <a class="btn" href="notes.html">← Notes</a>
+</div>
+<p class="sub">Step 3 · Every number is from Python. The purple parts are Claude's reading of your notes, and each one passed the validator.</p>
+
+<div class="legend">
+  <span><span class="who code">CODE</span>math, killzones, <span class="chip rule" style="margin:0">rule:</span> flags</span>
+  <span><span class="who model">MODEL</span>setup, <span class="chip note" style="margin:0">note:</span> mistakes, emotion, lesson</span>
+</div>
+
+<div class="grid g5">
+  <div class="panel tile"><div class="k">Net P&amp;L <span class="who code">CODE</span></div><div class="v pos">$212.94</div></div>
+  <div class="panel tile"><div class="k">Win rate <span class="who code">CODE</span></div><div class="v">57%</div></div>
+  <div class="panel tile"><div class="k">Profit factor <span class="who code">CODE</span></div><div class="v">1.95</div></div>
+  <div class="panel tile"><div class="k">Avg R <span class="who code">CODE</span></div><div class="v">1.33</div></div>
+  <div class="panel tile"><div class="k">Trades</div><div class="v">7</div></div>
+</div>
+
+<div class="grid g2" style="margin-top:14px">
+  <div class="panel"><h3>Equity curve <span class="who code">CODE</span></h3><canvas id="equity"></canvas></div>
+  <div class="panel"><h3>Net P&amp;L by issue <span class="who code">CODE</span> + <span class="who model">MODEL</span></h3><canvas id="issues"></canvas></div>
+  <div class="panel"><h3>Net P&amp;L by setup <span class="who model">MODEL</span> label</h3><canvas id="setups"></canvas></div>
+  <div class="panel"><h3>Net P&amp;L by emotion <span class="who model">MODEL</span> label</h3><canvas id="emotions"></canvas></div>
+</div>
+
+<h2>Trades</h2>
+<div class="panel" style="padding:0">
+  
+  <div class="tcard">
+    <div class="head">
+      <b>#1</b>
+      <span class="mono">03:12</span>
+      <span>short 2 MNQ</span>
+      <span class="pnl pos">$121.52</span>
+      <span class="hint">3.04R</span>
+      <span class="chip">london</span>
+      <div class="spacer"></div>
+      <span class="setup">liquidity_sweep_reversal</span>
+      <span class="hint">conf 0.8</span>
+      <span class="chip ok">ok</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="chip ok">clean</span>
+      <span class="chip note">feeling: calm</span>
+      <span class="chip note">followed plan</span>
+    </div>
+    <div class="quote">“London sweep of Asia high at 21490, waited for displacement down and shorted the FVG retest. Plan trade, stop above the high.”</div>
+    <div class="lesson">→ Keep waiting for sweep, displacement, and FVG retest with a defined stop; this patient process produced a clean 3R.</div>
+    
+    
+
+    
+    <details>
+      <summary>See exactly what Claude was sent and what came back</summary>
+      <div class="cols2">
+        <div><div class="hint">Prompt (built by <code>tj/tagger.py</code>)</div><pre>Label this trade from the trader&#39;s note. The numbers below were computed by code and are correct; do not recompute or contradict them.
+
+FACTS (from code):
+{
+  &#34;symbol&#34;: &#34;MNQZ6&#34;,
+  &#34;root&#34;: &#34;MNQ&#34;,
+  &#34;side&#34;: &#34;short&#34;,
+  &#34;qty&#34;: 2,
+  &#34;entry_price&#34;: 21482.25,
+  &#34;exit_price&#34;: 21451.5,
+  &#34;entry_time&#34;: &#34;2026-10-23 03:12:40&#34;,
+  &#34;hold_minutes&#34;: 28.4,
+  &#34;pnl&#34;: 121.52,
+  &#34;risk_usd&#34;: 40.0,
+  &#34;r_multiple&#34;: 3.04,
+  &#34;killzone&#34;: &#34;london&#34;,
+  &#34;rule_flags&#34;: []
+}
+
+TRADER&#39;S NOTE (written right after the trade):
+&#34;&#34;&#34;London sweep of Asia high at 21490, waited for displacement down and shorted the FVG retest. Plan trade, stop above the high. Felt calm.&#34;&#34;&#34;
+
+Return exactly this JSON object:
+{
+  &#34;setup&#34;: one of [&#39;breaker_block&#39;, &#39;breakout_chase&#39;, &#39;fvg_entry&#39;, &#39;liquidity_sweep_reversal&#39;, &#39;order_block&#39;, &#39;ote_retracement&#39;, &#39;other&#39;, &#39;silver_bullet&#39;, &#39;smt_divergence&#39;, &#39;unclear&#39;],
+  &#34;mistakes&#34;: list drawn from [&#39;early_entry&#39;, &#39;early_exit&#39;, &#39;fomo_entry&#39;, &#39;held_loser&#39;, &#39;ignored_htf_bias&#39;, &#39;moved_stop&#39;, &#39;no_plan&#39;, &#39;no_stop&#39;, &#39;revenge_trade&#39;] -- [] if the note shows none. Only tag what the NOTE supports. Do NOT tag killzone, size, trade count, or loss limit; code already checks those,
+  &#34;emotion&#34;: one of [&#39;anxious&#39;, &#39;bored&#39;, &#39;calm&#39;, &#39;confident&#39;, &#39;fearful&#39;, &#39;frustrated&#39;, &#39;greedy&#39;, &#39;unclear&#39;],
+  &#34;followed_plan&#34;: true | false | null (null if the note doesn&#39;t say),
+  &#34;evidence&#34;: an EXACT substring copied from the note that best supports your labels,
+  &#34;lesson&#34;: one actionable sentence, max 140 characters,
+  &#34;confidence&#34;: number 0-1, how sure you are of the setup label
+}
+If the note is too vague to tell the setup, use &#34;unclear&#34; and a low confidence.</pre></div>
+        <div>
+          <div class="hint">Answer after validation (<code>tj/schema.py</code>)</div>
+          <pre>{
+  "confidence": 0.8,
+  "emotion": "calm",
+  "evidence": "London sweep of Asia high at 21490, waited for displacement down and shorted the FVG retest. Plan trade, stop above the high.",
+  "followed_plan": true,
+  "lesson": "Keep waiting for sweep, displacement, and FVG retest with a defined stop; this patient process produced a clean 3R.",
+  "mistakes": [],
+  "setup": "liquidity_sweep_reversal"
+}</pre>
+          
+          <div class="hint">attempt 1: passed · 6.7s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0136
+            </div>
+          
+        </div>
+      </div>
+    </details>
+    
+  </div>
+  
+  <div class="tcard">
+    <div class="head">
+      <b>#2</b>
+      <span class="mono">08:47</span>
+      <span>long 3 MNQ</span>
+      <span class="pnl neg">-$78.72</span>
+      <span class="hint">-2.19R</span>
+      <span class="chip">ny_am</span>
+      <div class="spacer"></div>
+      <span class="setup">unclear</span>
+      <span class="hint">conf 0.3</span>
+      <span class="chip ok">ok</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="chip note">note:early_entry</span><span class="chip note">note:fomo_entry</span>
+      <span class="chip note">feeling: anxious</span>
+      <span class="chip note">off plan</span>
+    </div>
+    <div class="quote">“Got in too early before the 8:30 news range low was even taken. Saw the candle ripping and FOMO&#39;d.”</div>
+    <div class="lesson">→ Wait for the news range low to be swept and confirmed before entering; don&#39;t chase a ripping candle.</div>
+    
+    
+
+    
+    <details>
+      <summary>See exactly what Claude was sent and what came back</summary>
+      <div class="cols2">
+        <div><div class="hint">Prompt (built by <code>tj/tagger.py</code>)</div><pre>Label this trade from the trader&#39;s note. The numbers below were computed by code and are correct; do not recompute or contradict them.
+
+FACTS (from code):
+{
+  &#34;symbol&#34;: &#34;MNQZ6&#34;,
+  &#34;root&#34;: &#34;MNQ&#34;,
+  &#34;side&#34;: &#34;long&#34;,
+  &#34;qty&#34;: 3,
+  &#34;entry_price&#34;: 21401.0,
+  &#34;exit_price&#34;: 21388.25,
+  &#34;entry_time&#34;: &#34;2026-10-23 08:47:10&#34;,
+  &#34;hold_minutes&#34;: 5.3,
+  &#34;pnl&#34;: -78.72,
+  &#34;risk_usd&#34;: 36.0,
+  &#34;r_multiple&#34;: -2.19,
+  &#34;killzone&#34;: &#34;ny_am&#34;,
+  &#34;rule_flags&#34;: []
+}
+
+TRADER&#39;S NOTE (written right after the trade):
+&#34;&#34;&#34;Got in too early before the 8:30 news range low was even taken. Saw the candle ripping and FOMO&#39;d. Stopped out.&#34;&#34;&#34;
+
+Return exactly this JSON object:
+{
+  &#34;setup&#34;: one of [&#39;breaker_block&#39;, &#39;breakout_chase&#39;, &#39;fvg_entry&#39;, &#39;liquidity_sweep_reversal&#39;, &#39;order_block&#39;, &#39;ote_retracement&#39;, &#39;other&#39;, &#39;silver_bullet&#39;, &#39;smt_divergence&#39;, &#39;unclear&#39;],
+  &#34;mistakes&#34;: list drawn from [&#39;early_entry&#39;, &#39;early_exit&#39;, &#39;fomo_entry&#39;, &#39;held_loser&#39;, &#39;ignored_htf_bias&#39;, &#39;moved_stop&#39;, &#39;no_plan&#39;, &#39;no_stop&#39;, &#39;revenge_trade&#39;] -- [] if the note shows none. Only tag what the NOTE supports. Do NOT tag killzone, size, trade count, or loss limit; code already checks those,
+  &#34;emotion&#34;: one of [&#39;anxious&#39;, &#39;bored&#39;, &#39;calm&#39;, &#39;confident&#39;, &#39;fearful&#39;, &#39;frustrated&#39;, &#39;greedy&#39;, &#39;unclear&#39;],
+  &#34;followed_plan&#34;: true | false | null (null if the note doesn&#39;t say),
+  &#34;evidence&#34;: an EXACT substring copied from the note that best supports your labels,
+  &#34;lesson&#34;: one actionable sentence, max 140 characters,
+  &#34;confidence&#34;: number 0-1, how sure you are of the setup label
+}
+If the note is too vague to tell the setup, use &#34;unclear&#34; and a low confidence.</pre></div>
+        <div>
+          <div class="hint">Answer after validation (<code>tj/schema.py</code>)</div>
+          <pre>{
+  "confidence": 0.3,
+  "emotion": "anxious",
+  "evidence": "Got in too early before the 8:30 news range low was even taken. Saw the candle ripping and FOMO\u0027d.",
+  "followed_plan": false,
+  "lesson": "Wait for the news range low to be swept and confirmed before entering; don\u0027t chase a ripping candle.",
+  "mistakes": [
+    "early_entry",
+    "fomo_entry"
+  ],
+  "setup": "unclear"
+}</pre>
+          
+          <div class="hint">attempt 1: passed · 6.4s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0134
+            </div>
+          
+        </div>
+      </div>
+    </details>
+    
+  </div>
+  
+  <div class="tcard">
+    <div class="head">
+      <b>#3</b>
+      <span class="mono">08:55</span>
+      <span>long 6 MNQ</span>
+      <span class="pnl neg">-$118.44</span>
+      <span class="hint">-1.97R</span>
+      <span class="chip">ny_am</span>
+      <div class="spacer"></div>
+      <span class="setup">other</span>
+      <span class="hint">conf 0.8</span>
+      <span class="chip ok">ok</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="chip rule">rule:oversized</span><span class="chip note">note:revenge_trade</span><span class="chip note">note:no_plan</span>
+      <span class="chip note">feeling: frustrated</span>
+      <span class="chip note">off plan</span>
+    </div>
+    <div class="quote">“Revenge trade after #2, doubled size to make it back. No real setup, just wanted green.”</div>
+    <div class="lesson">→ After a loss, step away and wait for a defined setup at normal size instead of trying to win it back.</div>
+    
+    
+
+    
+    <details>
+      <summary>See exactly what Claude was sent and what came back</summary>
+      <div class="cols2">
+        <div><div class="hint">Prompt (built by <code>tj/tagger.py</code>)</div><pre>Label this trade from the trader&#39;s note. The numbers below were computed by code and are correct; do not recompute or contradict them.
+
+FACTS (from code):
+{
+  &#34;symbol&#34;: &#34;MNQZ6&#34;,
+  &#34;root&#34;: &#34;MNQ&#34;,
+  &#34;side&#34;: &#34;long&#34;,
+  &#34;qty&#34;: 6,
+  &#34;entry_price&#34;: 21390.5,
+  &#34;exit_price&#34;: 21381.0,
+  &#34;entry_time&#34;: &#34;2026-10-23 08:55:02&#34;,
+  &#34;hold_minutes&#34;: 6.6,
+  &#34;pnl&#34;: -118.44,
+  &#34;risk_usd&#34;: 60.0,
+  &#34;r_multiple&#34;: -1.97,
+  &#34;killzone&#34;: &#34;ny_am&#34;,
+  &#34;rule_flags&#34;: [
+    &#34;oversized&#34;
+  ]
+}
+
+TRADER&#39;S NOTE (written right after the trade):
+&#34;&#34;&#34;Revenge trade after #2, doubled size to make it back. No real setup, just wanted green. Frustrated.&#34;&#34;&#34;
+
+Return exactly this JSON object:
+{
+  &#34;setup&#34;: one of [&#39;breaker_block&#39;, &#39;breakout_chase&#39;, &#39;fvg_entry&#39;, &#39;liquidity_sweep_reversal&#39;, &#39;order_block&#39;, &#39;ote_retracement&#39;, &#39;other&#39;, &#39;silver_bullet&#39;, &#39;smt_divergence&#39;, &#39;unclear&#39;],
+  &#34;mistakes&#34;: list drawn from [&#39;early_entry&#39;, &#39;early_exit&#39;, &#39;fomo_entry&#39;, &#39;held_loser&#39;, &#39;ignored_htf_bias&#39;, &#39;moved_stop&#39;, &#39;no_plan&#39;, &#39;no_stop&#39;, &#39;revenge_trade&#39;] -- [] if the note shows none. Only tag what the NOTE supports. Do NOT tag killzone, size, trade count, or loss limit; code already checks those,
+  &#34;emotion&#34;: one of [&#39;anxious&#39;, &#39;bored&#39;, &#39;calm&#39;, &#39;confident&#39;, &#39;fearful&#39;, &#39;frustrated&#39;, &#39;greedy&#39;, &#39;unclear&#39;],
+  &#34;followed_plan&#34;: true | false | null (null if the note doesn&#39;t say),
+  &#34;evidence&#34;: an EXACT substring copied from the note that best supports your labels,
+  &#34;lesson&#34;: one actionable sentence, max 140 characters,
+  &#34;confidence&#34;: number 0-1, how sure you are of the setup label
+}
+If the note is too vague to tell the setup, use &#34;unclear&#34; and a low confidence.</pre></div>
+        <div>
+          <div class="hint">Answer after validation (<code>tj/schema.py</code>)</div>
+          <pre>{
+  "confidence": 0.85,
+  "emotion": "frustrated",
+  "evidence": "Revenge trade after #2, doubled size to make it back. No real setup, just wanted green.",
+  "followed_plan": false,
+  "lesson": "After a loss, step away and wait for a defined setup at normal size instead of trying to win it back.",
+  "mistakes": [
+    "revenge_trade",
+    "no_plan"
+  ],
+  "setup": "other"
+}</pre>
+          
+          <div class="hint">attempt 1: passed · 6.7s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0133
+            </div>
+          
+        </div>
+      </div>
+    </details>
+    
+  </div>
+  
+  <div class="tcard">
+    <div class="head">
+      <b>#4</b>
+      <span class="mono">10:04</span>
+      <span>long 3 MNQ</span>
+      <span class="pnl pos">$276.78</span>
+      <span class="hint">9.23R</span>
+      <span class="chip">ny_am</span>
+      <div class="spacer"></div>
+      <span class="setup">silver_bullet</span>
+      <span class="hint">conf 0.9</span>
+      <span class="chip ok">ok</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="chip ok">clean</span>
+      <span class="chip note">feeling: confident</span>
+      <span class="chip note">followed plan</span>
+    </div>
+    <div class="quote">“Silver bullet window, FVG on the 1m after SSL sweep at 21365. Entered at the gap, target the 21420 BSL. Took it to target.”</div>
+    <div class="lesson">→ Keep repeating this process: sweep, FVG entry in the window, and a defined liquidity target held through to completion.</div>
+    
+    
+
+    
+    <details>
+      <summary>See exactly what Claude was sent and what came back</summary>
+      <div class="cols2">
+        <div><div class="hint">Prompt (built by <code>tj/tagger.py</code>)</div><pre>Label this trade from the trader&#39;s note. The numbers below were computed by code and are correct; do not recompute or contradict them.
+
+FACTS (from code):
+{
+  &#34;symbol&#34;: &#34;MNQZ6&#34;,
+  &#34;root&#34;: &#34;MNQ&#34;,
+  &#34;side&#34;: &#34;long&#34;,
+  &#34;qty&#34;: 3,
+  &#34;entry_price&#34;: 21372.75,
+  &#34;exit_price&#34;: 21419.25,
+  &#34;entry_time&#34;: &#34;2026-10-23 10:04:15&#34;,
+  &#34;hold_minutes&#34;: 34.6,
+  &#34;pnl&#34;: 276.78,
+  &#34;risk_usd&#34;: 30.0,
+  &#34;r_multiple&#34;: 9.23,
+  &#34;killzone&#34;: &#34;ny_am&#34;,
+  &#34;rule_flags&#34;: []
+}
+
+TRADER&#39;S NOTE (written right after the trade):
+&#34;&#34;&#34;Silver bullet window, FVG on the 1m after SSL sweep at 21365. Entered at the gap, target the 21420 BSL. Took it to target. Confident.&#34;&#34;&#34;
+
+Return exactly this JSON object:
+{
+  &#34;setup&#34;: one of [&#39;breaker_block&#39;, &#39;breakout_chase&#39;, &#39;fvg_entry&#39;, &#39;liquidity_sweep_reversal&#39;, &#39;order_block&#39;, &#39;ote_retracement&#39;, &#39;other&#39;, &#39;silver_bullet&#39;, &#39;smt_divergence&#39;, &#39;unclear&#39;],
+  &#34;mistakes&#34;: list drawn from [&#39;early_entry&#39;, &#39;early_exit&#39;, &#39;fomo_entry&#39;, &#39;held_loser&#39;, &#39;ignored_htf_bias&#39;, &#39;moved_stop&#39;, &#39;no_plan&#39;, &#39;no_stop&#39;, &#39;revenge_trade&#39;] -- [] if the note shows none. Only tag what the NOTE supports. Do NOT tag killzone, size, trade count, or loss limit; code already checks those,
+  &#34;emotion&#34;: one of [&#39;anxious&#39;, &#39;bored&#39;, &#39;calm&#39;, &#39;confident&#39;, &#39;fearful&#39;, &#39;frustrated&#39;, &#39;greedy&#39;, &#39;unclear&#39;],
+  &#34;followed_plan&#34;: true | false | null (null if the note doesn&#39;t say),
+  &#34;evidence&#34;: an EXACT substring copied from the note that best supports your labels,
+  &#34;lesson&#34;: one actionable sentence, max 140 characters,
+  &#34;confidence&#34;: number 0-1, how sure you are of the setup label
+}
+If the note is too vague to tell the setup, use &#34;unclear&#34; and a low confidence.</pre></div>
+        <div>
+          <div class="hint">Answer after validation (<code>tj/schema.py</code>)</div>
+          <pre>{
+  "confidence": 0.9,
+  "emotion": "confident",
+  "evidence": "Silver bullet window, FVG on the 1m after SSL sweep at 21365. Entered at the gap, target the 21420 BSL. Took it to target.",
+  "followed_plan": true,
+  "lesson": "Keep repeating this process: sweep, FVG entry in the window, and a defined liquidity target held through to completion.",
+  "mistakes": [],
+  "setup": "silver_bullet"
+}</pre>
+          
+          <div class="hint">attempt 1: passed · 6.1s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0136
+            </div>
+          
+        </div>
+      </div>
+    </details>
+    
+  </div>
+  
+  <div class="tcard">
+    <div class="head">
+      <b>#5</b>
+      <span class="mono">11:21</span>
+      <span>short 2 MNQ</span>
+      <span class="pnl neg">-$27.48</span>
+      <span class="hint">-1.37R</span>
+      <span class="chip">none</span>
+      <div class="spacer"></div>
+      <span class="setup">other</span>
+      <span class="hint">conf 0.8</span>
+      <span class="chip ok">ok</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="chip rule">rule:outside_killzone</span><span class="chip rule">rule:over_max_trades</span><span class="chip note">note:no_plan</span>
+      <span class="chip note">feeling: bored</span>
+      <span class="chip note">off plan</span>
+    </div>
+    <div class="quote">“Bored at lunch, shorted a &#39;top&#39; with no setup.”</div>
+    <div class="lesson">→ Boredom isn&#39;t a setup; if you can&#39;t name your entry criteria before clicking, stay flat and step away from the screen.</div>
+    
+    
+
+    
+    <details>
+      <summary>See exactly what Claude was sent and what came back</summary>
+      <div class="cols2">
+        <div><div class="hint">Prompt (built by <code>tj/tagger.py</code>)</div><pre>Label this trade from the trader&#39;s note. The numbers below were computed by code and are correct; do not recompute or contradict them.
+
+FACTS (from code):
+{
+  &#34;symbol&#34;: &#34;MNQZ6&#34;,
+  &#34;root&#34;: &#34;MNQ&#34;,
+  &#34;side&#34;: &#34;short&#34;,
+  &#34;qty&#34;: 2,
+  &#34;entry_price&#34;: 21431.0,
+  &#34;exit_price&#34;: 21437.5,
+  &#34;entry_time&#34;: &#34;2026-10-23 11:21:30&#34;,
+  &#34;hold_minutes&#34;: 2.7,
+  &#34;pnl&#34;: -27.48,
+  &#34;risk_usd&#34;: 20.0,
+  &#34;r_multiple&#34;: -1.37,
+  &#34;killzone&#34;: &#34;none&#34;,
+  &#34;rule_flags&#34;: [
+    &#34;outside_killzone&#34;,
+    &#34;over_max_trades&#34;
+  ]
+}
+
+TRADER&#39;S NOTE (written right after the trade):
+&#34;&#34;&#34;Bored at lunch, shorted a &#39;top&#39; with no setup.&#34;&#34;&#34;
+
+Return exactly this JSON object:
+{
+  &#34;setup&#34;: one of [&#39;breaker_block&#39;, &#39;breakout_chase&#39;, &#39;fvg_entry&#39;, &#39;liquidity_sweep_reversal&#39;, &#39;order_block&#39;, &#39;ote_retracement&#39;, &#39;other&#39;, &#39;silver_bullet&#39;, &#39;smt_divergence&#39;, &#39;unclear&#39;],
+  &#34;mistakes&#34;: list drawn from [&#39;early_entry&#39;, &#39;early_exit&#39;, &#39;fomo_entry&#39;, &#39;held_loser&#39;, &#39;ignored_htf_bias&#39;, &#39;moved_stop&#39;, &#39;no_plan&#39;, &#39;no_stop&#39;, &#39;revenge_trade&#39;] -- [] if the note shows none. Only tag what the NOTE supports. Do NOT tag killzone, size, trade count, or loss limit; code already checks those,
+  &#34;emotion&#34;: one of [&#39;anxious&#39;, &#39;bored&#39;, &#39;calm&#39;, &#39;confident&#39;, &#39;fearful&#39;, &#39;frustrated&#39;, &#39;greedy&#39;, &#39;unclear&#39;],
+  &#34;followed_plan&#34;: true | false | null (null if the note doesn&#39;t say),
+  &#34;evidence&#34;: an EXACT substring copied from the note that best supports your labels,
+  &#34;lesson&#34;: one actionable sentence, max 140 characters,
+  &#34;confidence&#34;: number 0-1, how sure you are of the setup label
+}
+If the note is too vague to tell the setup, use &#34;unclear&#34; and a low confidence.</pre></div>
+        <div>
+          <div class="hint">Answer after validation (<code>tj/schema.py</code>)</div>
+          <pre>{
+  "confidence": 0.8,
+  "emotion": "bored",
+  "evidence": "Bored at lunch, shorted a \u0027top\u0027 with no setup.",
+  "followed_plan": false,
+  "lesson": "Boredom isn\u0027t a setup; if you can\u0027t name your entry criteria before clicking, stay flat and step away from the screen.",
+  "mistakes": [
+    "no_plan"
+  ],
+  "setup": "other"
+}</pre>
+          
+          <div class="hint">attempt 1: passed · 6.4s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0133
+            </div>
+          
+        </div>
+      </div>
+    </details>
+    
+  </div>
+  
+  <div class="tcard">
+    <div class="head">
+      <b>#6</b>
+      <span class="mono">13:44</span>
+      <span>long 2 MNQ</span>
+      <span class="pnl pos">$30.52</span>
+      <span class="hint">1.27R</span>
+      <span class="chip">ny_pm</span>
+      <div class="spacer"></div>
+      <span class="setup">order_block</span>
+      <span class="hint">conf 0.8</span>
+      <span class="chip ok">ok</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="chip rule">rule:over_max_trades</span><span class="chip note">note:early_exit</span>
+      <span class="chip note">feeling: anxious</span>
+      <span class="chip note">off plan</span>
+    </div>
+    <div class="quote">“Cut it early at +4 because I was nervous after the morning, it ran another 30 pts after.”</div>
+    <div class="lesson">→ Predefine your target and let the trade reach it; don&#39;t let earlier losses drive an early exit.</div>
+    
+    
+
+    
+    <details>
+      <summary>See exactly what Claude was sent and what came back</summary>
+      <div class="cols2">
+        <div><div class="hint">Prompt (built by <code>tj/tagger.py</code>)</div><pre>Label this trade from the trader&#39;s note. The numbers below were computed by code and are correct; do not recompute or contradict them.
+
+FACTS (from code):
+{
+  &#34;symbol&#34;: &#34;MNQZ6&#34;,
+  &#34;root&#34;: &#34;MNQ&#34;,
+  &#34;side&#34;: &#34;long&#34;,
+  &#34;qty&#34;: 2,
+  &#34;entry_price&#34;: 21418.0,
+  &#34;exit_price&#34;: 21426.0,
+  &#34;entry_time&#34;: &#34;2026-10-23 13:44:00&#34;,
+  &#34;hold_minutes&#34;: 36.5,
+  &#34;pnl&#34;: 30.52,
+  &#34;risk_usd&#34;: 24.0,
+  &#34;r_multiple&#34;: 1.27,
+  &#34;killzone&#34;: &#34;ny_pm&#34;,
+  &#34;rule_flags&#34;: [
+    &#34;over_max_trades&#34;
+  ]
+}
+
+TRADER&#39;S NOTE (written right after the trade):
+&#34;&#34;&#34;PM session bullish OB retest at 21415. Cut it early at +4 because I was nervous after the morning, it ran another 30 pts after.&#34;&#34;&#34;
+
+Return exactly this JSON object:
+{
+  &#34;setup&#34;: one of [&#39;breaker_block&#39;, &#39;breakout_chase&#39;, &#39;fvg_entry&#39;, &#39;liquidity_sweep_reversal&#39;, &#39;order_block&#39;, &#39;ote_retracement&#39;, &#39;other&#39;, &#39;silver_bullet&#39;, &#39;smt_divergence&#39;, &#39;unclear&#39;],
+  &#34;mistakes&#34;: list drawn from [&#39;early_entry&#39;, &#39;early_exit&#39;, &#39;fomo_entry&#39;, &#39;held_loser&#39;, &#39;ignored_htf_bias&#39;, &#39;moved_stop&#39;, &#39;no_plan&#39;, &#39;no_stop&#39;, &#39;revenge_trade&#39;] -- [] if the note shows none. Only tag what the NOTE supports. Do NOT tag killzone, size, trade count, or loss limit; code already checks those,
+  &#34;emotion&#34;: one of [&#39;anxious&#39;, &#39;bored&#39;, &#39;calm&#39;, &#39;confident&#39;, &#39;fearful&#39;, &#39;frustrated&#39;, &#39;greedy&#39;, &#39;unclear&#39;],
+  &#34;followed_plan&#34;: true | false | null (null if the note doesn&#39;t say),
+  &#34;evidence&#34;: an EXACT substring copied from the note that best supports your labels,
+  &#34;lesson&#34;: one actionable sentence, max 140 characters,
+  &#34;confidence&#34;: number 0-1, how sure you are of the setup label
+}
+If the note is too vague to tell the setup, use &#34;unclear&#34; and a low confidence.</pre></div>
+        <div>
+          <div class="hint">Answer after validation (<code>tj/schema.py</code>)</div>
+          <pre>{
+  "confidence": 0.85,
+  "emotion": "anxious",
+  "evidence": "Cut it early at +4 because I was nervous after the morning, it ran another 30 pts after.",
+  "followed_plan": false,
+  "lesson": "Predefine your target and let the trade reach it; don\u0027t let earlier losses drive an early exit.",
+  "mistakes": [
+    "early_exit"
+  ],
+  "setup": "order_block"
+}</pre>
+          
+          <div class="hint">attempt 1: passed · 6.4s · claude-haiku-5-5,claude-sonnet-5-5 · $0.0134
+            </div>
+          
+        </div>
+      </div>
+    </details>
+    
+  </div>
+  
+  <div class="tcard">
+    <div class="head">
+      <b>#7</b>
+      <span class="mono">15:10</span>
+      <span>short 1 MNQ</span>
+      <span class="pnl pos">$8.76</span>
+      <span class="hint">no risk set</span>
+      <span class="chip">ny_pm</span>
+      <div class="spacer"></div>
+      <span class="setup">no_note</span>
+      
+      <span class="chip warn">skipped_no_note</span>
+    </div>
+    <div style="margin-top:8px">
+      <span class="chip rule">rule:over_max_trades</span>
+      
+      
+    </div>
+    
+    
+    <div class="hint" style="margin-top:6px">No note, so Claude was never called for this trade.</div>
+    
+
+    
+  </div>
+  
+</div>
+
+<h2>Model run</h2>
+<div class="grid g5">
+  <div class="panel tile"><div class="k">Model calls</div><div class="v">6</div></div>
+  <div class="panel tile"><div class="k">Rejected by validator</div><div class="v">0</div></div>
+  <div class="panel tile"><div class="k">Time in model</div><div class="v">38.7s</div></div>
+  <div class="panel tile"><div class="k">API-equivalent cost</div><div class="v">$0.0806</div><div class="hint">Covered by Claude Code plan, not billed</div></div>
+  <div class="panel tile"><div class="k">Tag status</div><div style="margin-top:6px"><span class="chip">ok 6</span><span class="chip">skipped_no_note 1</span></div></div>
+</div>
+
+  </main>
+  
+<script src="static/vendor/chart.umd.min.js"></script>
+<script>
+const css = getComputedStyle(document.documentElement);
+const C = (v) => css.getPropertyValue(v).trim();
+Chart.defaults.color = C("--muted");
+Chart.defaults.borderColor = C("--line");
+Chart.defaults.font.family = css.fontFamily;
+
+const equity = [{"label": "#1 03:12", "y": 121.52}, {"label": "#2 08:47", "y": 42.8}, {"label": "#3 08:55", "y": -75.64}, {"label": "#4 10:04", "y": 201.14}, {"label": "#5 11:21", "y": 173.66}, {"label": "#6 13:44", "y": 204.18}, {"label": "#7 15:10", "y": 212.94}];
+new Chart(document.getElementById("equity"), {
+  type: "line",
+  data: { labels: equity.map(p => p.label), datasets: [{ data: equity.map(p => p.y), borderColor: C("--code"),
+          backgroundColor: "transparent", tension: .25, pointRadius: 3 }] },
+  options: { plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => "$" + v } } } }
+});
+
+function bars(id, rows) {
+  rows = [...rows].sort((a, b) => a.net - b.net);
+  new Chart(document.getElementById(id), {
+    type: "bar",
+    data: { labels: rows.map(r => r.k), datasets: [{ data: rows.map(r => r.net),
+            backgroundColor: rows.map(r => r.net >= 0 ? C("--green") : C("--red")), borderRadius: 4 }] },
+    options: { indexAxis: "y", plugins: { legend: { display: false },
+               tooltip: { callbacks: { label: (c) => { const r = rows[c.dataIndex];
+                 return `$${r.net.toFixed(2)} · ${r.n} trade${r.n > 1 ? "s" : ""} · ${Math.round(r.wr * 100)}% win`; } } } },
+               scales: { x: { ticks: { callback: v => "$" + v } } } }
+  });
+}
+bars("issues", [{"k": "rule:over_max_trades", "n": 3, "net": 11.8, "wr": 0.667}, {"k": "clean", "n": 2, "net": 398.3, "wr": 1.0}, {"k": "note:no_plan", "n": 2, "net": -145.92, "wr": 0.0}, {"k": "note:early_entry", "n": 1, "net": -78.72, "wr": 0.0}, {"k": "note:fomo_entry", "n": 1, "net": -78.72, "wr": 0.0}, {"k": "rule:oversized", "n": 1, "net": -118.44, "wr": 0.0}, {"k": "note:revenge_trade", "n": 1, "net": -118.44, "wr": 0.0}, {"k": "rule:outside_killzone", "n": 1, "net": -27.48, "wr": 0.0}, {"k": "note:early_exit", "n": 1, "net": 30.52, "wr": 1.0}]);
+bars("setups", [{"k": "other", "n": 2, "net": -145.92, "wr": 0.0}, {"k": "liquidity_sweep_reversal", "n": 1, "net": 121.52, "wr": 1.0}, {"k": "unclear", "n": 1, "net": -78.72, "wr": 0.0}, {"k": "silver_bullet", "n": 1, "net": 276.78, "wr": 1.0}, {"k": "order_block", "n": 1, "net": 30.52, "wr": 1.0}, {"k": "no_note", "n": 1, "net": 8.76, "wr": 1.0}]);
+bars("emotions", [{"k": "anxious", "n": 2, "net": -48.2, "wr": 0.5}, {"k": "calm", "n": 1, "net": 121.52, "wr": 1.0}, {"k": "frustrated", "n": 1, "net": -118.44, "wr": 0.0}, {"k": "confident", "n": 1, "net": 276.78, "wr": 1.0}, {"k": "bored", "n": 1, "net": -27.48, "wr": 0.0}, {"k": "unclear", "n": 1, "net": 8.76, "wr": 1.0}]);
+</script>
+
+</body>
+</html>
